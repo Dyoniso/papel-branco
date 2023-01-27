@@ -1,0 +1,5 @@
+Frases para a extração de Dados de Artigos no Chat GPT
+
+- Escreva para mim [100] categorias aleatórias
+- Escreva para mim [100] títulos de artigos aleatórios
+- Escreva com detalhe e emoção um artigo de titulo [titulo]
