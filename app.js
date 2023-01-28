@@ -12,9 +12,10 @@ const openai = new OpenAIApi(configuration);
 const similarity = new Similarity()
 
 /* CHAT GPT QUERIES */
-const gptCategoryQuery = 'Escreva uma lista de 2 categorias aleatórias'
+const gptCategoryQuery = 'Escreva uma lista de 2 categorias de terror aleatórias'
 const gptTitleQuery = 'Escreva uma lista de 2 títulos de artigos aleatórios'
 const gptArticleQuery = 'Escreva com detalhes e emoção um artigo'
+const gptHistorysQuery = 'Escreva com detalhes e emoção uma história'
 
 async function generateText(ask) {
     return await openai.createCompletion({
@@ -40,12 +41,17 @@ async function generateText(ask) {
 let CategoriesObj = {}
 let TitlesList = []
 let ArticlesList = []
+let HistorysList = []
 
 ;(async() => {
     CategoriesObj = await makeCategoryList() 
     console.log(CategoriesObj)
     TitlesList = await makeTitleList()
+    console.log(TitlesList)
     ArticlesObj = await makeArticleList()
+    console.log(ArticlesList)
+    HistorysList = await makeHistorysList()
+    console.log(HistorysList)
 })()
 
 async function makeCategoryList() {
@@ -71,8 +77,6 @@ async function makeTitleList() {
         })
     }
 
-    console.log(arr)
-
     return arr
 }
 
@@ -80,7 +84,7 @@ async function makeArticleList() {
     let arr = []
     for(let obj of TitlesList) {
         for (let title of obj.contents) {
-            let gptData = await generateText(gptArticleQuery + ` com o título ${title}`)
+            let gptData = await generateText(gptArticleQuery + ` sobre ${title}`)
             let formatedData = gptData.choices[0].text
             arr.push({
                 gpt_id : gptData.id,
@@ -92,7 +96,26 @@ async function makeArticleList() {
         }
     }
 
-    console.log(arr)
+    return arr
+}
+
+async function makeHistorysList() {
+    let arr = []
+    for(let obj of TitlesList) {
+        for (let title of obj.contents) {
+            let gptData = await generateText(gptHistorysQuery + ` sobre ${title}`)
+            let formatedData = gptData.choices[0].text
+            arr.push({
+                gpt_id : gptData.id,
+                category : obj.category,
+                title : title,
+                content : formatedData,
+                created : gptData.created
+            })
+        }
+    }
+
+    return arr
 }
 
 
