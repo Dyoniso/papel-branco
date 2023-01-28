@@ -1,0 +1,26 @@
+{
+  "name": "gpt-overnews",
+  "version": "1.0.0",
+  "description": "ChatGPT Articles Site",
+  "main": "app.js",
+  "scripts": {
+    "test": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dyoniso/GPT-Overnews.git"
+  },
+  "keywords": [
+    "openai"
+  ],
+  "author": "7Dz (Dyoniso)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Dyoniso/GPT-Overnews/issues"
+  },
+  "homepage": "https://github.com/Dyoniso/GPT-Overnews#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "openai": "^3.1.0"
+  }
+}
