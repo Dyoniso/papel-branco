@@ -26,6 +26,6 @@ module.exports = {
     app : app
 }
 
-require('./api/database/dbsync').tableSync(() => {
+require('./api/ia').startSync(() => {
 
 })
