@@ -19,11 +19,13 @@ app.use('/pub', express.static('public/css'))
 
 const httpServer = http.createServer(app)
 httpServer.listen(PORT, HOST, () => {
-    logger.info(`Overnews API Started! Listening on port ${PORT}`, LOGTAG)
+    logger.info(`Overnews API Iniciada, ouvindo na porta ${PORT}`, LOGTAG)
 })
 
 module.exports = {
     app : app
 }
 
-require('./api/router')
+require('./api/database/dbsync').tableSync(() => {
+
+})

@@ -1,6 +1,9 @@
 require('dotenv').config()
 const { Configuration, OpenAIApi } = require("openai");
 const Similarity = require('./utils/Similarity')
+const logger = require('./utils/APILogger')
+
+const LOGTAG = 'ia.js'
 
 const google = require('googlethis')
 
@@ -31,10 +34,9 @@ async function generateText(ask) {
         .then((res) => res.data)
         .catch((error) => {
             if (error.response) {
-                console.log(error.response.status)
-                console.log(error.response.data)
+                logger.error('Error after get openai data: ' + { status : error.response.status, data : error.response.data }, LOGTAG)
             } else {
-                console.log(error.message)
+                logger.error('Error after get openai data: ' + error.message, LOGTAG)
             }
         })
 }
@@ -63,48 +65,50 @@ async function imageSearch(content) {
             }
         }))
         .catch((err) => {
-            console.log(err)
+            logger.info('[Google-IMG] Error ao procurar imagens. ' + err.toString(), LOGTAG)
             return []
         })
 }
 
-;(async() => {
-    CategoriesObj = await makeCategoryList() 
-    console.log(CategoriesObj)
-    TitlesList = await makeTitleList()
-    console.log(TitlesList)
-
-    //makeArticleList()
-    makeHistorysList()
-})()
-
 async function makeCategoryList() {
+    logger.info('Iniciando sicronização da lista de categoria..')
+
     let gptData = await generateText(gptCategoryQuery)
     let formatedData = gptData.choices[0].text.replace(/^[0-9]*\. /gm, '').split('\n').filter(f => f.length > 2)
-    return { 
+    let obj = { 
         gpt_id : gptData.id,
         contents : similarity.filterArrByRange(formatedData),
         created : gptData.created
     }
+
+    logger.info('Sicronização da lista de categoria finalizada com sucesso! data: ' + JSON.stringify(obj), LOGTAG)
+    CategoriesObj = obj
 }
 
 async function makeTitleList() {
-    let arr = []
+    logger.info('Iniciando sicronização de títulos dos artigos..')
+
     for (let category of CategoriesObj.contents) {
         let gptData = await generateText(gptTitleQuery + ` categoria ${category}`)
         let formatedData = gptData.choices[0].text.replace(/^[0-9]*\. /gm, '').replace(/"/gm, '').split('\n').filter(f => f.length > 5)
-        arr = arr.concat({ 
+        let obj = { 
             gpt_id : gptData.id,
             category : category, 
             contents : similarity.filterArrByRange(formatedData, 0.6),
             created : gptData.created
-        })
+        }
+
+        TitlesList.push(obj)
+
+        logger.info('[Article-Title] Novo objeto adicionado a lista: ' + JSON.stringify(obj), LOGTAG)
     }
 
-    return arr
+    logger.info('Os títulos dos artigos foram sicronizados com sucesso!')
 }
 
 async function makeArticleList() {
+    logger.info('Iniciando sicronização de Artigos com base em títulos do [Article-Titles]', LOGTAG)
+
     for(let obj of TitlesList) {
         for (let title of obj.contents) {
             let gptData = await generateText(gptArticleQuery + ` sobre ${title}`)
@@ -113,9 +117,10 @@ async function makeArticleList() {
             let artcObj = {
                 gpt_id : gptData.id,
                 category : obj.category,
+                page_path : generatePageUrl(title),
                 title : title,
                 content : formatedData,
-                created : gptData.created
+                created : gptData.created,
             }
 
             const files = await imageSearch(artcObj.title)
@@ -123,9 +128,11 @@ async function makeArticleList() {
 
             ArticlesList.push(artcObj)
 
-            console.log(ArticlesList)
+            logger.info('[Articles] Novo objeto adicionado a lista. data: ' + JSON.stringify(artcObj), LOGTAG)
         }
     }
+
+    logger.info('Os Artigos foram sicronizados com sucesso!', LOGTAG)
 }
 
 async function makeHistorysList() {
@@ -145,11 +152,36 @@ async function makeHistorysList() {
             const files = await imageSearch(hstObj.title)
             hstObj.files = [files[0], files[1]]
 
-            console.log(hstObj)
-
             HistorysList.push(hstObj)
         }
     }
 }
+
+function generatePageUrl(title) {
+    function makeUrl(c) {
+        return c.toString()
+        .toLowerCase()
+        .replace(/ /g, '-')
+        .replace(/[&\/\\#,$~{}?!:.]/g, '') 
+    }
+
+    //Check url exists
+    let url = makeUrl(title)
+    let arr = TitlesList.filter(f => makeUrl(f) === url)
+    let num = arr.length
+    if (num > 0) url = url + '-' + (num++)
+
+    return url
+}
+
+exports.startSync = async(callback) => {
+    await makeCategoryList() 
+    await makeTitleList()
+    await makeArticleList()
+    //makeHistorysList()
+
+    return callback
+}
+
 
 
