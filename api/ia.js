@@ -28,9 +28,9 @@ const openai = new OpenAIApi(configuration);
 const similarity = new Similarity()
 
 /* CHAT GPT QUERIES */
-const gptCategoryQuery = `Escreva uma lista de ${QTD_CATEGORY} categorias ${PRICIPAL_THEME} aleatórias`
-const gptTitleQuery = `Escreva uma lista de ${QTD_ARTICLES} títulos de artigos aleatórios`
-const gptArticleQuery = 'Escreva com detalhes e emoção um artigo'
+const gptCategoryQuery = `Liste-me nomes de ${QTD_CATEGORY} categorias ${PRICIPAL_THEME} de modo aleatório`
+const gptTitleQuery = `Liste-me em Português ${QTD_ARTICLES} títulos de artigo de modo aleatório`
+const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptHistorysQuery = 'Escreva com detalhes e emoção uma história'
 
 async function generateText(ask) {
