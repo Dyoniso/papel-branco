@@ -23,9 +23,8 @@ httpServer.listen(PORT, HOST, () => {
 })
 
 module.exports = {
-    app : app
+    app : app,
 }
 
-require('./api/ia').startSync(() => {
-
-})
+// START AI SYNC
+require('./api/ia').startSync()

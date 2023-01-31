@@ -6,6 +6,8 @@ const { v4: uuidv4 } = require('uuid')
 const db = require('./database/db')
 const format = require('pg-format')
 
+const router = require('./router')
+
 const LOGTAG = 'ia.js'
 
 const google = require('googlethis')
@@ -32,6 +34,7 @@ const gptCategoryQuery = `Liste-me nomes de ${QTD_CATEGORY} categorias ${PRICIPA
 const gptTitleQuery = `Liste-me em Português ${QTD_ARTICLES} títulos de artigo de modo aleatório`
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptHistorysQuery = 'Escreva com detalhes e emoção uma história'
+
 
 async function generateText(ask) {
     return await openai.createCompletion({
@@ -156,8 +159,11 @@ async function generateArticles(TitlesList) {
                 ])
 
                 logger.info('[Articles] Novo objeto adicionado ao banco de dados. data: ' + JSON.stringify(artcObj), LOGTAG)
+                
+                syncDBPagesMaping()
 
             } catch (err) {
+                throw err
                 logger.error('Falha ao gerar Artigo, verifique o IA GPT. Err: ' + err.toString(), LOGTAG)
             }
         }
@@ -192,8 +198,8 @@ function generatePageUrl(TitlesList, title) {
     function makeUrl(c) {
         return c.toString()
         .toLowerCase()
-        .replace(/ /g, '-')
-        .replace(/[&\/\\#,$~{}?!:.]/g, '') 
+        .replace(/ /gm, '-')
+        .replace(/[&\/\\#,$~{}?!:.´`]/gm, '') 
     }
 
     //Check url exists
@@ -277,11 +283,26 @@ exports.startSync = async(callback) => {
         await generateArticles(titles)
 
     } catch (err) {
+        throw err
         logger.error('Erro sicronização de artigos com o banco de dados. Err: ' + err.toString(), LOGTAG)
     }    
 
     return callback
 }
 
+async function syncDBPagesMaping() {
+    let arr = router.getArtgRouters()
+    let fmlRouters = arr.map(f => f.id)
+    if (fmlRouters.length <= 0) fmlRouters = [-1]
 
+    logger.info('Iniciando mapeamento de rotas base em Artigos recem-criados', LOGTAG)
 
+    let qs = await db.query(format(`
+        SELECT "ID_ARTICLE", "PAGE_PATH" FROM "ARTICLE"
+        WHERE "ID_ARTICLE" NOT IN (%L)
+    `, fmlRouters))
+
+    router.mapRoutes(qs)
+    logger.info('Mapeamento de rotas finalizado com sucesso', LOGTAG)
+}
+syncDBPagesMaping()
