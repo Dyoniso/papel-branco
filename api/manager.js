@@ -22,16 +22,16 @@ module.exports = {
             let q = artg[0]
 
             let article = {
-                id_article : q.ID_ARTICLE,
-                title : q.TITLE,
-                content : q.CONTENT,
-                created : q.CREATED,
-                updated : q.UPDATED,
-                id_category : q.ID_CATEGORY,
-                category_content : q.CATEGORY_CONTENT
+                id_article : q.id_article,
+                title : q.title,
+                content : q.content,
+                created : q.created,
+                updated : q.updated,
+                id_category : q.id_category,
+                category_content : q.category_content
             }
 
-            return res.render('article', article)
+            return res.render('article', { article : article })
         }
 
         return res.status(404).send('Not Found')

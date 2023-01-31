@@ -264,7 +264,6 @@ exports.startSync = async(callback) => {
     let titles = await makeTitleList(categories)
 
     try {
-        let titleFmlData = []
         for (let f of titles) {
             f.contents = await f.contents.filter(async c => {
                 try {
