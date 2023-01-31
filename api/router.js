@@ -19,6 +19,7 @@ module.exports.mapRoutes = arr => {
         const path = '/articles/'+f.PAGE_PATH 
         logger.info('Mapeando novo caminho: ' + path, LOG_TAG)
         app.get(path, (req, res) => {
+            req.article_id = f.ID_ARTICLE
             return manager.renderArticles(req, res)
         })
 

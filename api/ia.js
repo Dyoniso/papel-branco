@@ -5,6 +5,8 @@ const logger = require('./utils/APILogger')
 const { v4: uuidv4 } = require('uuid')
 const db = require('./database/db')
 const format = require('pg-format')
+const ClearCharacters = require('./utils/ClearCharacters')
+const clearCharacters = new ClearCharacters()
 
 const router = require('./router')
 
@@ -163,7 +165,6 @@ async function generateArticles(TitlesList) {
                 syncDBPagesMaping()
 
             } catch (err) {
-                throw err
                 logger.error('Falha ao gerar Artigo, verifique o IA GPT. Err: ' + err.toString(), LOGTAG)
             }
         }
@@ -196,6 +197,8 @@ async function makeHistorysList() {
 
 function generatePageUrl(TitlesList, title) {
     function makeUrl(c) {
+        c = clearCharacters.cleaup(c)
+        
         return c.toString()
         .toLowerCase()
         .replace(/ /gm, '-')
@@ -283,7 +286,6 @@ exports.startSync = async(callback) => {
         await generateArticles(titles)
 
     } catch (err) {
-        throw err
         logger.error('Erro sicronização de artigos com o banco de dados. Err: ' + err.toString(), LOGTAG)
     }    
 
