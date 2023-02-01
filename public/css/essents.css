@@ -7,6 +7,7 @@
     --title-bg-color: white;
     --fotter-bg-color: #bba10e;
     --fotter-text-color: black;
+    --card-background: #c5c5c5;
 }
 
 body {
@@ -89,4 +90,12 @@ p {
     border-radius: 4px;
     color: var(--title-bg-color);
     font-weight: bold;
+}
+
+.card {
+    background-color: var(--card-background)!important;
+    margin-top: 5rem;
+    font-weight: bold;
+    color: var(--title-text-color);
+    font-size: 22px;
 }

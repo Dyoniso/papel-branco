@@ -303,7 +303,7 @@ exports.startSync = async(fromDatabase) => {
                 fmlCategory.push(f.ID_CATEGORY)
 
                 return {
-                    tm_id : f.API_ID, value : f.CONTENT
+                    id_category : f.ID_CATEGORY, tm_id : f.API_ID, value : f.CONTENT
                 }
             })
             obj.contents = contents
@@ -365,7 +365,7 @@ async function syncDBPagesMaping() {
     let fmlRouters = arr.map(f => f.id)
     if (fmlRouters.length <= 0) fmlRouters = [-1]
 
-    logger.info('Iniciando mapeamento de rotas base em Artigos recem-criados', LOGTAG)
+    logger.warning('Iniciando mapeamento de rotas base em Artigos recem-criados', LOGTAG)
 
     let qs = await db.query(format(`
         SELECT "ID_ARTICLE", "PAGE_PATH" FROM "ARTICLE"
@@ -373,6 +373,6 @@ async function syncDBPagesMaping() {
     `, fmlRouters))
 
     router.mapRoutes(qs)
-    logger.info('Mapeamento de rotas finalizado com sucesso', LOGTAG)
+    logger.warning('Mapeamento de rotas finalizado com sucesso', LOGTAG)
 }
 syncDBPagesMaping()
