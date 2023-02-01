@@ -82,7 +82,7 @@ async function imageSearch(content) {
 }
 
 async function makeCategoryList() {
-    logger.info('Iniciando sicronização da lista de categoria..')
+    logger.warning('Iniciando sicronização da lista de categoria..')
 
     let gptData = await generateText(gptCategoryQuery)
     let formatedData = gptData.choices[0].text.replace(/^[0-9]*\. /gm, '').split('\n').filter(f => f.length > 2)
@@ -98,12 +98,12 @@ async function makeCategoryList() {
         created : gptData.created
     }
 
-    logger.info('Sicronização da lista de categoria finalizada com sucesso! data: ' + JSON.stringify(obj), LOGTAG)
+    logger.warning('Sicronização da lista de categoria finalizada com sucesso! data: ' + JSON.stringify(obj), LOGTAG)
     return obj
 }
 
 async function makeTitleList(CategoriesObj) {
-    logger.info('Iniciando sicronização de títulos dos artigos..')
+    logger.warning('Iniciando sicronização de títulos dos artigos..')
 
     let arr = []
 
@@ -122,13 +122,13 @@ async function makeTitleList(CategoriesObj) {
         logger.info('[Article-Title] Novo objeto adicionado a lista: ' + JSON.stringify(obj), LOGTAG)
     }
 
-    logger.info('Os títulos dos artigos foram sicronizados com sucesso!')
+    logger.warning('Os títulos dos artigos foram sicronizados com sucesso!')
 
     return arr
 }
 
 async function generateArticles(TitlesList) {
-    logger.info('Iniciando sicronização de Artigos com base em títulos do [Article-Titles]', LOGTAG)
+    logger.warning('Iniciando sicronização de Artigos com base em títulos do [Article-Titles]', LOGTAG)
 
     for(let obj of TitlesList) {
         for (let title of obj.contents) {
@@ -170,7 +170,7 @@ async function generateArticles(TitlesList) {
         }
     }
 
-    logger.info('Os Artigos foram sicronizados com sucesso!', LOGTAG)
+    logger.warning('Os Artigos foram sicronizados com sucesso!', LOGTAG)
 }
 
 async function makeHistorysList() {
@@ -201,6 +201,7 @@ function generatePageUrl(TitlesList, title) {
         
         return c.toString()
         .toLowerCase()
+        .trim()
         .replace(/ /gm, '-')
         .replace(/[&\/\\#,$~{}?!:.´`]/gm, '') 
     }
@@ -214,47 +215,86 @@ function generatePageUrl(TitlesList, title) {
     return url
 }
 
-exports.startSync = async(callback) => {
-    let categories = await makeCategoryList()
+let syncLock = false
+
+exports.startSync = async(fromDatabase) => {
+
+    //Lock sync
+    if (syncLock) return
+    syncLock = true
+
+    let categories = {}
     //let articles = await makeArticleList(titles)
     //makeHistorysList()
 
     try {
-        let categoryFmlData = []
-        for (let f of categories.contents) {
-            try {
-                let qs = await db.query(`
-                    SELECT 1 as edit FROM "ARTG_CATEGORY"
-                    WHERE
-                        levenshtein(lower("CONTENT"), lower($1)) <= 3
-                    LIMIT 1;
-                `, [f.value])
+        if (!fromDatabase) {
 
-                if (!qs[0] || qs[0].edit !== 1) {
-                    categoryFmlData.push([f.value, categories.gpt_id, f.tm_id])
-                }
-            } catch (err) {
-                logger.error('Error na validação de categorias. Err: ' + err.toString(), LOGTAG)
-            }
-        }
+            categories = await makeCategoryList()
+            let categoryFmlData = []
+            for (let f of categories.contents) {
+                try {
+                    let qs = await db.query(`
+                        SELECT 1 as edit FROM "ARTG_CATEGORY"
+                        WHERE
+                            levenshtein(lower("CONTENT"), lower($1)) <= 3
+                        LIMIT 1;
+                    `, [f.value])
 
-        if (categoryFmlData.length > 0) {
-            let qs = await db.query(format(`
-                INSERT INTO "ARTG_CATEGORY" (
-                    "CONTENT", "GPT_ID", "API_ID"
-                ) VALUES %L RETURNING "API_ID", "ID_CATEGORY";
-            `, categoryFmlData))
-            
-            categories.contents = categories.contents.filter(f => {
-                for (let q of qs) {
-                    if (q.API_ID === f.tm_id) {
-                        f.id_category = q.ID_CATEGORY
-                        return f
+                    if (!qs[0] || qs[0].edit !== 1) {
+                        categoryFmlData.push([f.value, categories.gpt_id, f.tm_id])
                     }
+                } catch (err) {
+                    logger.error('Error na validação de categorias. Err: ' + err.toString(), LOGTAG)
+                }
+            }
+
+            if (categoryFmlData.length > 0) {
+                let qs = await db.query(format(`
+                    INSERT INTO "ARTG_CATEGORY" (
+                        "CONTENT", "GPT_ID", "API_ID"
+                    ) VALUES %L RETURNING "API_ID", "ID_CATEGORY";
+                `, categoryFmlData))
+                
+                categories.contents = categories.contents.filter(f => {
+                    for (let q of qs) {
+                        if (q.API_ID === f.tm_id) {
+                            f.id_category = q.ID_CATEGORY
+                            return f
+                        }
+                    }
+                })
+
+                logger.info('Novo conjunto de categorias adicionada ao banco de dados. Data: ' + JSON.stringify(categoryFmlData), LOGTAG)
+            }
+
+        } else {
+
+            // Select random category
+            let qs = await db.query(`
+                SELECT 
+                    "ID_CATEGORY",
+                    "CONTENT",
+                    "GPT_ID",
+                    "API_ID"
+                FROM
+                    "ARTG_CATEGORY"
+                ORDER BY random()
+                LIMIT $1
+            `, [QTD_CATEGORY])
+            
+            let obj = {}
+            let contents = qs.map(f => {
+                if (!obj.gpt_id) obj.gpt_id = f.GPT_ID
+                return {
+                    tm_id : f.API_ID, value : f.CONTENT
                 }
             })
+            obj.contents = contents
 
-            logger.info('Novo conjunto de categorias adicionada ao banco de dados. Data: ' + JSON.stringify(categoryFmlData), LOGTAG)
+            logger.warning('Novo conjunto de categorias selecionado para a sicronização. Data: ' + JSON.stringify(contents), LOGTAG)
+
+            categories = obj
         }
 
     } catch (err) {
@@ -286,9 +326,10 @@ exports.startSync = async(callback) => {
 
     } catch (err) {
         logger.error('Erro sicronização de artigos com o banco de dados. Err: ' + err.toString(), LOGTAG)
-    }    
-
-    return callback
+    }
+    
+    //Open sync to new entries
+    syncLock = false
 }
 
 async function syncDBPagesMaping() {

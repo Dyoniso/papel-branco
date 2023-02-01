@@ -4,26 +4,28 @@ html(lang="en")
     include ./head.pug
 
     body
+        div.gr-top-bar
+            div.bar-title Overnews
+
         div.container
-            div.article-title-container.row.mt-4
-                div.title-category
-                    | Categoria : #{article.category_content}
-                h2.font-weight-bold #{article.title}
-        
-            div.row
+            div.article-title-container.row
+                div.article-header
+                    div.category 
+                        span Categoria/#{article.category_content}
+                    div.article-title
+                        div.font-weight-bold #{article.title}
+            
+            //div.row
                 div.article-img-set
                     img(src="https://www.alura.com.br/artigos/assets/node-js-definicao-caracteristicas-vantagens-usos/node-js-definicao-caracteristicas-vantagens-usos.png", alt="node-img", srcset="")
 
             div.row
                 div.col-8
-                    h2.font-weight-bold Introdução
-
-                    p    
-                        #{article.content}
+                    p.article-content= article.content
 
 
                 div.col-4
                     h4 Cards Here
 
         div.footer-container
-            h4.font-weight-bold Overnews 2023 IC
+            div.font-weight-bold Overnews 2023 IC

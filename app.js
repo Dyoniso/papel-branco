@@ -26,5 +26,5 @@ module.exports = {
     app : app,
 }
 
-// START AI SYNC
-require('./api/ia').startSync()
+// STARTS CRON
+require('./api/cron')
