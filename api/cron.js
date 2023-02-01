@@ -25,4 +25,4 @@ cron.schedule(`0 ${HOUR_AI_SYNC} * * *`, async() => {
 });
 
 //First start api
-ia.startSync(false)
+ia.startSync(true)

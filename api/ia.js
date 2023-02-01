@@ -232,6 +232,7 @@ exports.startSync = async(fromDatabase) => {
 
             categories = await makeCategoryList()
             let categoryFmlData = []
+
             for (let f of categories.contents) {
                 try {
                     let qs = await db.query(`
@@ -243,6 +244,17 @@ exports.startSync = async(fromDatabase) => {
 
                     if (!qs[0] || qs[0].edit !== 1) {
                         categoryFmlData.push([f.value, categories.gpt_id, f.tm_id])
+                    } else {
+                        try {
+                            db.query(`
+                                UPDATE "ARTG_CATEGORY" SET
+                                    "QTD_MATCHED" = "QTD_MATCHED" + 1
+                                WHERE
+                                    levenshtein(lower("CONTENT"), lower($1)) <= 3
+                            `, [f.value])
+                        } catch (err) {
+                            logger.error('Erro ao mudar status da categoria. Err: '+err.toString(), LOGTAG)
+                        }
                     }
                 } catch (err) {
                     logger.error('Error na validação de categorias. Err: ' + err.toString(), LOGTAG)
@@ -283,9 +295,13 @@ exports.startSync = async(fromDatabase) => {
                 LIMIT $1
             `, [QTD_CATEGORY])
             
+            let fmlCategory = []
             let obj = {}
             let contents = qs.map(f => {
                 if (!obj.gpt_id) obj.gpt_id = f.GPT_ID
+
+                fmlCategory.push(f.ID_CATEGORY)
+
                 return {
                     tm_id : f.API_ID, value : f.CONTENT
                 }
@@ -293,6 +309,18 @@ exports.startSync = async(fromDatabase) => {
             obj.contents = contents
 
             logger.warning('Novo conjunto de categorias selecionado para a sicronização. Data: ' + JSON.stringify(contents), LOGTAG)
+
+            try {
+                db.query(format(`
+                    UPDATE "ARTG_CATEGORY" SET
+                        "QTD_SYNC" = "QTD_SYNC" + 1
+                    WHERE
+                        "ID_CATEGORY" IN (%L) 
+                `, fmlCategory))
+
+            } catch (err) {
+                logger.error('Error após gravar status de categoria. Err: '+err.toString(), LOGTAG)
+            }
 
             categories = obj
         }
