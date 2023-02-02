@@ -7,6 +7,8 @@ const db = require('./database/db')
 const format = require('pg-format')
 const ClearCharacters = require('./utils/ClearCharacters')
 const clearCharacters = new ClearCharacters()
+const http = require('http')
+const fs = require('fs')
 
 const router = require('./router')
 
@@ -17,12 +19,14 @@ const google = require('googlethis')
 const OPENAI_TOKEN = process.env.OPENAI_API_KEY
 let QTD_CATEGORY = process.env.QTD_CATEGORY
 let QTD_ARTICLES =  process.env.QTD_CATEGORY
+let QTD_KEYWORDS = process.env.QTD_KEYWORDS
 let PRICIPAL_THEME = process.env.PRICIPAL_THEME
 
 //Default Config
 if (!PRICIPAL_THEME || PRICIPAL_THEME.length === 0)  PRICIPAL_THEME = ''
 if (!QTD_ARTICLES || QTD_ARTICLES.length === 0) QTD_ARTICLES = 2
 if (!QTD_CATEGORY || QTD_CATEGORY.length === 0) QTD_CATEGORY = 5
+if (!QTD_KEYWORDS || QTD_KEYWORDS.length === 0) QTD_KEYWORDS = 5
 
 const configuration = new Configuration({
     apiKey: OPENAI_TOKEN,
@@ -36,7 +40,7 @@ const gptCategoryQuery = `Liste-me nomes de ${QTD_CATEGORY} categorias ${PRICIPA
 const gptTitleQuery = `Liste-me em Português ${QTD_ARTICLES} títulos de artigo de modo aleatório`
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptHistorysQuery = 'Escreva com detalhes e emoção uma história'
-
+const gptTagsQuery = `Liste-me em inglês ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
 
 async function generateText(ask) {
     return await openai.createCompletion({
@@ -65,7 +69,7 @@ async function imageSearch(content) {
         parse_ads : false,
     }
 
-    return await google.image(`${content}`, options)
+    return await google.image(`${content} filetype: jpg,jpeg,webp`, options)
         .then(data => data.map(f => {
             return {
                 gid : f.id,
@@ -80,6 +84,12 @@ async function imageSearch(content) {
             return []
         })
 }
+
+;(async() => {
+    const content = await imageSearch('Cat')
+    let files = [content[0], content[1]]
+    console.log(files)
+})()
 
 async function makeCategoryList() {
     logger.warning('Iniciando sicronização da lista de categoria..')
@@ -127,6 +137,38 @@ async function makeTitleList(CategoriesObj) {
     return arr
 }
 
+async function generateKeywords(idArticle, title) {
+    logger.warning('Gerando palavras chaves do seguinte título: ' + title, LOGTAG)
+
+    let gptData = await generateText(gptTagsQuery + ' ' + title)
+    let formatedData = gptData.choices[0].text
+    .toString()
+    .trim()
+    .replace(/^[0-9]*\. /gm, '')
+    .split('\n')
+    .filter(f => f.length > 2)
+
+    if (formatedData.length > 0) {
+        formatedData = formatedData.map(f => [idArticle, f])
+        try {
+            await db.query(format(`
+                INSERT INTO "ARTICLE_KEYWORD" (
+                    "ID_ARTICLE",
+                    "CONTENT"
+                ) VALUES %L
+            `, formatedData))
+        } catch (err) {
+            logger.error('Error ao gravar palavras chaves no banco de dados: ' + err.toString(), LOGTAG)
+        }
+
+        logger.warning('Palavras chaves geradas com sucesso. Data: ' + JSON.stringify(formatedData), LOGTAG)
+
+        return formatedData.map(f => f[1])
+    }
+
+    return []
+}
+
 async function generateArticles(TitlesList) {
     logger.warning('Iniciando sicronização de Artigos com base em títulos do [Article-Titles]', LOGTAG)
 
@@ -144,14 +186,11 @@ async function generateArticles(TitlesList) {
                 created : gptData.created,
             }
 
-            const files = await imageSearch(artcObj.title)
-            artcObj.files = [files[0], files[1]]
-
             try {
-                await db.query(`
+                let qs = await db.query(`
                     INSERT INTO "ARTICLE" (
                         "TITLE", "ID_CATEGORY", "GPT_ID", "CONTENT", "PAGE_PATH"
-                    ) VALUES ($1, $2, $3, $4, $5)
+                    ) VALUES ($1, $2, $3, $4, $5) RETURNING "ID_ARTICLE"
                 `, [
                     artcObj.title,
                     artcObj.category_id,
@@ -160,9 +199,23 @@ async function generateArticles(TitlesList) {
                     artcObj.page_path
                 ])
 
-                logger.info('[Articles] Novo objeto adicionado ao banco de dados. data: ' + JSON.stringify(artcObj), LOGTAG)
+                if (qs[0] && qs[0].ID_ARTICLE) {
+                    let articleID = qs[0].ID_ARTICLE
+                    let keywords = await generateKeywords(articleID, title)
+
+                    if (keywords && keywords.length > 0) {
+                        const files = await imageSearch(keywords.join([separator = ' ']))
+                        artcObj.files = [files[0], files[1]]
+
+
+
+                        console.log(artcObj.files)
+                    }
+
+                    logger.info('[Articles] Novo objeto adicionado ao banco de dados. data: ' + JSON.stringify(artcObj), LOGTAG)
                 
-                syncDBPagesMaping()
+                    syncDBPagesMaping()
+                }
 
             } catch (err) {
                 logger.error('Falha ao gerar Artigo, verifique o IA GPT. Err: ' + err.toString(), LOGTAG)
@@ -218,6 +271,8 @@ function generatePageUrl(TitlesList, title) {
 let syncLock = false
 
 exports.startSync = async(fromDatabase) => {
+
+    return
 
     //Lock sync
     if (syncLock) return
