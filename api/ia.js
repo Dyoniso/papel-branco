@@ -8,6 +8,7 @@ const format = require('pg-format')
 const ClearCharacters = require('./utils/ClearCharacters')
 const clearCharacters = new ClearCharacters()
 const http = require('http')
+const https = require('https')
 const fs = require('fs')
 
 const router = require('./router')
@@ -21,6 +22,7 @@ let QTD_CATEGORY = process.env.QTD_CATEGORY
 let QTD_ARTICLES =  process.env.QTD_CATEGORY
 let QTD_KEYWORDS = process.env.QTD_KEYWORDS
 let PRICIPAL_THEME = process.env.PRICIPAL_THEME
+let SAVE_FILES = (process.env.ENABLE_SAVE_FILES === 'true' || process.env.ENABLE_SAVE_FILES === 'yes')
 
 //Default Config
 if (!PRICIPAL_THEME || PRICIPAL_THEME.length === 0)  PRICIPAL_THEME = ''
@@ -63,13 +65,15 @@ async function generateText(ask) {
 
 // BEGIN SCRIPT
 async function imageSearch(content) {
+    console.log(content)
+
     const options = {
         page : 0,
         safe : false,
         parse_ads : false,
     }
 
-    return await google.image(`${content} filetype: jpg,jpeg,webp`, options)
+    return await google.image(`${content}`, options)
         .then(data => data.map(f => {
             return {
                 gid : f.id,
@@ -85,11 +89,70 @@ async function imageSearch(content) {
         })
 }
 
-;(async() => {
-    const content = await imageSearch('Cat')
-    let files = [content[0], content[1]]
-    console.log(files)
-})()
+async function searchSaveFile(idArticle, query) {
+    let contents = await imageSearch(query)
+    contents = contents.filter(f => {
+        let prot = new URL(f.url).protocol
+        return prot === 'http:' || prot === 'https:'
+    })
+
+    if (contents.length < 2) return
+
+    let files = [contents[0], contents[1]]
+
+    //Download file from url
+    for (let f of files) {        
+        const url = new URL(f.url)
+
+        let client = (url.protocol === 'https:') ? https : http
+        client.get(f.url, async(res) => {
+            const mimetype = res.headers['content-type'].split('/').pop()
+            const filename = uuidv4() + '.' + mimetype
+
+            if (SAVE_FILES) {
+                const file = fs.createWriteStream(`./public/assets/${filename}`)
+                res.pipe(file)
+                file.on('finish', () => {
+                    file.close()
+                    logger.info('Novo arquivo adicionado no /assets/'+filename, LOGTAG)
+                })
+            }
+
+            try {
+                let qs = await db.query(`
+                    INSERT INTO "FILE" (
+                        "FILENAME",
+                        "MIMETYPE",
+                        "ORIGIN_URL",
+                        "WIDTH",
+                        "HEIGHT",
+                        "COLOR"
+                    ) VALUES (
+                        $1, $2, $3, $4, $5, $6
+                    ) RETURNING "ID_FILE";
+                `, [filename, mimetype, f.url, f.width, f.height, f.color])
+
+                if (qs[0] && qs[0].ID_FILE) {
+                    let idFile = qs[0].ID_FILE
+
+                    await db.query(`
+                        INSERT INTO "ARTICLE_FILE" (
+                            "ID_FILE", "ID_ARTICLE"
+                        ) VALUES (
+                            $1, $2
+                        );
+                    `, [idFile, idArticle])
+                }
+    
+                logger.info('Novo arquivo salvo no banco de dados: '+filename, LOGTAG)
+    
+            } catch (err) {
+                throw err
+                logger.error('Erro ao gravar informações do arquivo no banco de dados.', LOGTAG)
+            }
+        })
+    }
+}
 
 async function makeCategoryList() {
     logger.warning('Iniciando sicronização da lista de categoria..')
@@ -204,12 +267,7 @@ async function generateArticles(TitlesList) {
                     let keywords = await generateKeywords(articleID, title)
 
                     if (keywords && keywords.length > 0) {
-                        const files = await imageSearch(keywords.join([separator = ' ']))
-                        artcObj.files = [files[0], files[1]]
-
-
-
-                        console.log(artcObj.files)
+                        searchSaveFile(articleID, keywords.join([separator = ' ']))
                     }
 
                     logger.info('[Articles] Novo objeto adicionado ao banco de dados. data: ' + JSON.stringify(artcObj), LOGTAG)
@@ -271,8 +329,6 @@ function generatePageUrl(TitlesList, title) {
 let syncLock = false
 
 exports.startSync = async(fromDatabase) => {
-
-    return
 
     //Lock sync
     if (syncLock) return
