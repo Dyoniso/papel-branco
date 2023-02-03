@@ -7,17 +7,18 @@ const db = require('./database/db')
 const format = require('pg-format')
 const ClearCharacters = require('./utils/ClearCharacters')
 const clearCharacters = new ClearCharacters()
-const http = require('http')
-const https = require('https')
+const axios = require('axios')
 const fs = require('fs')
 
 const router = require('./router')
 
 const LOGTAG = 'ia.js'
 
-const google = require('googlethis')
-
 const OPENAI_TOKEN = process.env.OPENAI_API_KEY
+const BING_SUBSCRIPTION_KEY = process.env.BING_SUBSCRIPTION_KEY
+
+const bingImgEndpoint = 'https://api.bing.microsoft.com/v7.0/images/search'
+
 let QTD_CATEGORY = process.env.QTD_CATEGORY
 let QTD_ARTICLES =  process.env.QTD_CATEGORY
 let QTD_KEYWORDS = process.env.QTD_KEYWORDS
@@ -64,94 +65,91 @@ async function generateText(ask) {
 }
 
 // BEGIN SCRIPT
-async function imageSearch(content) {
-    console.log(content)
+async function searchSaveFile(idArticle, query) {
 
-    const options = {
-        page : 0,
-        safe : false,
-        parse_ads : false,
+    const params = {
+        q: query,
+        count: 2,
+        offset: 0,
+        mkt: 'en-US',
+        safesearch: 'Moderate',
     }
 
-    return await google.image(`${content}`, options)
-        .then(data => data.map(f => {
+    const headers = {
+        'Ocp-Apim-Subscription-Key': BING_SUBSCRIPTION_KEY,
+    }
+
+    axios.get(bingImgEndpoint, { headers, params })
+    .then(res => res = { res : res, data : res.data.value })
+    .then(({res, data}) => {
+        let contents = data.map(f => {
             return {
-                gid : f.id,
-                url : f.url,
+                gid : f.imageId,
+                url : f.contentUrl,
                 width : f.width,
                 height : f.height,
-                color : f.color
+                color : f.accentColor,
+                mimetype : f.encodingFormat
             }
-        }))
-        .catch((err) => {
-            logger.info('[Google-IMG] Error ao procurar imagens. ' + err.toString(), LOGTAG)
-            return []
         })
-}
 
-async function searchSaveFile(idArticle, query) {
-    let contents = await imageSearch(query)
-    contents = contents.filter(f => {
-        let prot = new URL(f.url).protocol
-        return prot === 'http:' || prot === 'https:'
-    })
+        contents.map(async f => {
+            axios({
+                method : 'get',
+                url : f.url,
+                responseType: 'stream'
+            }).then(async fres => {
+                const filename = f.gid + '.' + f.mimetype
 
-    if (contents.length < 2) return
-
-    let files = [contents[0], contents[1]]
-
-    //Download file from url
-    for (let f of files) {        
-        const url = new URL(f.url)
-
-        let client = (url.protocol === 'https:') ? https : http
-        client.get(f.url, async(res) => {
-            const mimetype = res.headers['content-type'].split('/').pop()
-            const filename = uuidv4() + '.' + mimetype
-
-            if (SAVE_FILES) {
-                const file = fs.createWriteStream(`./public/assets/${filename}`)
-                res.pipe(file)
-                file.on('finish', () => {
-                    file.close()
-                    logger.info('Novo arquivo adicionado no /assets/'+filename, LOGTAG)
-                })
-            }
-
-            try {
-                let qs = await db.query(`
-                    INSERT INTO "FILE" (
-                        "FILENAME",
-                        "MIMETYPE",
-                        "ORIGIN_URL",
-                        "WIDTH",
-                        "HEIGHT",
-                        "COLOR"
-                    ) VALUES (
-                        $1, $2, $3, $4, $5, $6
-                    ) RETURNING "ID_FILE";
-                `, [filename, mimetype, f.url, f.width, f.height, f.color])
-
-                if (qs[0] && qs[0].ID_FILE) {
-                    let idFile = qs[0].ID_FILE
-
-                    await db.query(`
-                        INSERT INTO "ARTICLE_FILE" (
-                            "ID_FILE", "ID_ARTICLE"
-                        ) VALUES (
-                            $1, $2
-                        );
-                    `, [idFile, idArticle])
+                if (SAVE_FILES) {
+                    const file = fs.createWriteStream(`./public/assets/${filename}`)
+                    fres.data.pipe(file)
+                    file.on('finish', () => {
+                        file.close()
+                        logger.info('Novo arquivo adicionado no /assets/'+filename, LOGTAG)
+                    })
                 }
-    
-                logger.info('Novo arquivo salvo no banco de dados: '+filename, LOGTAG)
-    
-            } catch (err) {
-                throw err
-                logger.error('Erro ao gravar informações do arquivo no banco de dados.', LOGTAG)
-            }
+        
+                try {
+                    let qs = await db.query(`
+                        INSERT INTO "FILE" (
+                            "FILENAME",
+                            "MIMETYPE",
+                            "ORIGIN_URL",
+                            "WIDTH",
+                            "HEIGHT",
+                            "COLOR"
+                        ) VALUES (
+                            $1, $2, $3, $4, $5, $6
+                        ) RETURNING "ID_FILE";
+                    `, [filename, f.mimetype, f.url, f.width, f.height, f.color])
+        
+                    if (qs[0] && qs[0].ID_FILE) {
+                        let idFile = qs[0].ID_FILE
+        
+                        await db.query(`
+                            INSERT INTO "ARTICLE_FILE" (
+                                "ID_FILE", "ID_ARTICLE"
+                            ) VALUES (
+                                $1, $2
+                            );
+                        `, [idFile, idArticle])
+                    }
+        
+                    logger.info('Novo arquivo salvo no banco de dados: '+filename, LOGTAG)
+        
+                } catch (err) {
+                    logger.error('Erro ao gravar informações do arquivo no banco de dados.', LOGTAG)
+                }
+            })
+            .catch(err => {
+                logger.error('Erro na validação de imagens únicas. Err: ' + err.toString(), LOGTAG)
+            })
         })
-    }
+    })
+    .catch(err => {
+        logger.info('[Bing-IMG] Error na requisição de busca de imagens. ' + err.toString(), LOGTAG)
+    })
 }
 
 async function makeCategoryList() {
@@ -334,7 +332,7 @@ exports.startSync = async(fromDatabase) => {
     if (syncLock) return
     syncLock = true
 
-    let categories = {}
+    let categories = null
     //let articles = await makeArticleList(titles)
     //makeHistorysList()
 
@@ -405,39 +403,48 @@ exports.startSync = async(fromDatabase) => {
                 ORDER BY random()
                 LIMIT $1
             `, [QTD_CATEGORY])
+
+            if (qs.length > 0) {
             
-            let fmlCategory = []
-            let obj = {}
-            let contents = qs.map(f => {
-                if (!obj.gpt_id) obj.gpt_id = f.GPT_ID
+                let fmlCategory = []
+                let obj = {}
+                let contents = qs.map(f => {
+                    if (!obj.gpt_id) obj.gpt_id = f.GPT_ID
 
-                fmlCategory.push(f.ID_CATEGORY)
+                    fmlCategory.push(f.ID_CATEGORY)
 
-                return {
-                    id_category : f.ID_CATEGORY, tm_id : f.API_ID, value : f.CONTENT
+                    return {
+                        id_category : f.ID_CATEGORY, tm_id : f.API_ID, value : f.CONTENT
+                    }
+                })
+                obj.contents = contents
+
+                logger.warning('Novo conjunto de categorias selecionado para a sicronização. Data: ' + JSON.stringify(contents), LOGTAG)
+
+                try {
+                    db.query(format(`
+                        UPDATE "ARTG_CATEGORY" SET
+                            "QTD_SYNC" = "QTD_SYNC" + 1
+                        WHERE
+                            "ID_CATEGORY" IN (%L) 
+                    `, fmlCategory))
+
+                } catch (err) {
+                    logger.error('Error após gravar status de categoria. Err: '+err.toString(), LOGTAG)
                 }
-            })
-            obj.contents = contents
 
-            logger.warning('Novo conjunto de categorias selecionado para a sicronização. Data: ' + JSON.stringify(contents), LOGTAG)
+                categories = obj
 
-            try {
-                db.query(format(`
-                    UPDATE "ARTG_CATEGORY" SET
-                        "QTD_SYNC" = "QTD_SYNC" + 1
-                    WHERE
-                        "ID_CATEGORY" IN (%L) 
-                `, fmlCategory))
-
-            } catch (err) {
-                logger.error('Error após gravar status de categoria. Err: '+err.toString(), LOGTAG)
             }
-
-            categories = obj
         }
 
     } catch (err) {
         logger.error('Error na sicronização de categorias com o banco de dados. Err: ' + err.toString(), LOGTAG)
+    }
+
+    if (!categories) {
+        logger.error('Não é possível continuar a sicronização. Nenhum tipo de categoria foi encontrado')
+        return
     }
 
     let titles = await makeTitleList(categories)

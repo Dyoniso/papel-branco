@@ -16,6 +16,7 @@ app.set('view options', { pretty: true })
 
 app.use('/pub', express.static('public/js'))
 app.use('/pub', express.static('public/css'))
+app.use('/assets', express.static('public/assets'))
 
 const httpServer = http.createServer(app)
 httpServer.listen(PORT, HOST, () => {
