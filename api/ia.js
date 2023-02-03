@@ -24,6 +24,7 @@ let QTD_ARTICLES =  process.env.QTD_CATEGORY
 let QTD_KEYWORDS = process.env.QTD_KEYWORDS
 let PRICIPAL_THEME = process.env.PRICIPAL_THEME
 let SAVE_FILES = (process.env.ENABLE_SAVE_FILES === 'true' || process.env.ENABLE_SAVE_FILES === 'yes')
+let ENABLE_SYNC = (process.env.ENABLE_SYNC === 'true' || process.env.ENABLE_SYNC === 'yes')
 
 //Default Config
 if (!PRICIPAL_THEME || PRICIPAL_THEME.length === 0)  PRICIPAL_THEME = ''
@@ -204,13 +205,12 @@ async function generateKeywords(idArticle, title) {
     let gptData = await generateText(gptTagsQuery + ' ' + title)
     let formatedData = gptData.choices[0].text
     .toString()
-    .trim()
     .replace(/^[0-9]*\. /gm, '')
     .split('\n')
     .filter(f => f.length > 2)
 
     if (formatedData.length > 0) {
-        formatedData = formatedData.map(f => [idArticle, f])
+        formatedData = formatedData.map(f => [idArticle, f.trim()])
         try {
             await db.query(format(`
                 INSERT INTO "ARTICLE_KEYWORD" (
@@ -329,7 +329,7 @@ let syncLock = false
 exports.startSync = async(fromDatabase) => {
 
     //Lock sync
-    if (syncLock) return
+    if (syncLock || !ENABLE_SYNC) return
     syncLock = true
 
     let categories = null

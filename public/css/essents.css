@@ -8,6 +8,8 @@
     --fotter-bg-color: #bba10e;
     --fotter-text-color: black;
     --card-background: #c5c5c5;
+    --tag-background: #ffffff50;
+    --tag-text-color: black;
 }
 
 body {
@@ -60,7 +62,7 @@ p {
 .secondary-img-content img {
     width: 100%;
     max-height: 250px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 8px;
 }
 
@@ -104,4 +106,15 @@ p {
     font-weight: bold;
     color: var(--title-text-color);
     font-size: 22px;
+    padding: 4px;
+}
+
+.tag-content {
+    border-radius: 18px;
+    margin-right: 4px;
+    margin-top: 4px;
+    background: #ffffff50;
+    font-weight: bold;
+    color: var(--tag-text-color);
+    padding: 4px;
 }

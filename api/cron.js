@@ -10,6 +10,8 @@ let HOUR_DATABASE_SYNC = process.env.CRON_EVERY_DATABASE_HOUR
 if (!HOUR_AI_SYNC) HOUR_AI_SYNC = 0
 if (!HOUR_DATABASE_SYNC) HOUR_DATABASE_SYNC = 4
 
+const BEGIN_SYNC = (process.env.BEGIN_SYNC === 'true' || process.env.BEGIN_SYNC === 'yes')
+
 //Cron sync categories of database
 cron.schedule(`0 */${HOUR_DATABASE_SYNC} * * *`, async() => {
     logger.warning('Iniciando sicronização agendada. Gerando novos títulos com base em categorias aleatórias do banco de dados')
@@ -25,4 +27,4 @@ cron.schedule(`0 ${HOUR_AI_SYNC} * * *`, async() => {
 });
 
 //First start api
-ia.startSync(true)
+ia.startSync(BEGIN_SYNC)

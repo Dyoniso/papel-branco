@@ -27,13 +27,15 @@ html(lang="en")
 
 
                 div.col-4
-                    div.card
-                        div.card-body
-                            div.secondary-img-content
-                                if (article.files[1])
-                                    - let file = article.files[1] 
+                    div.mt-5.secondary-img-content
+                        if (article.files[1])
+                            - let file = article.files[1] 
 
-                                    img(src=("/assets/" + file.name), alt=(file.name), srcset="")
+                            img(src=("/assets/" + file.name), alt=(file.name), srcset="")
+
+                    div.mt-4.tag-container
+                        each tag in article.keywords
+                            span.tag-content #{tag.content}
 
 
         div.footer-container

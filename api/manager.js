@@ -31,8 +31,29 @@ module.exports = {
                 updated : q.updated,
                 id_category : q.id_category,
                 category_content : q.category_content,
-                files : []
+                files : [],
+                keywords : []
             }
+
+            try {
+                let qs = await db.query(`
+                    SELECT
+                        "ID_ARTICLE_KEYWORD",
+                        "CONTENT"
+                    FROM
+                        "ARTICLE_KEYWORD"
+                    WHERE
+                        "ID_ARTICLE" = $1
+                `, [article.id_article])
+
+                qs.map(f => {
+                    article.keywords.push({
+                        id : f.ID_ARTICLE_KEYWORD,
+                        content : f.CONTENT
+                    })
+                })
+
+            } catch(err) {} 
 
             try {
                 let qs = await db.query(`
