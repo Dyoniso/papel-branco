@@ -1,8 +1,19 @@
+require('dotenv').config()
 const logger = require("./utils/APILogger")
 const db = require('./database/db')
 const LOG_TAG = 'manager.js'
 
+const PAGE_URL = process.env.SITE_URL
+
 module.exports = {
+    robots : async(req, res) => {
+        res.header('Content-Type', 'text/plain; charset=utf-8')
+        res.header('Content-Enconding', 'gzip');
+
+        let robots = `User-agent: *\nDisallow:\nSitemap: ${PAGE_URL}/sitemap.xml`
+        return res.send(robots).end()
+    },
+
     renderArticles : async(req, res) => {
         let artg = await db.query(`
             SELECT

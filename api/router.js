@@ -9,6 +9,10 @@ app.get('/', (req, res) => {
     return res.render('article')
 })
 
+app.get('/robots.txt', (req, res) => {
+    return manager.robots(req, res)
+})
+
 /* START DB ROUTERS */
 module.exports.getArtgRouters = () => {
     return artgRouters
