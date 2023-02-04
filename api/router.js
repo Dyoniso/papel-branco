@@ -5,8 +5,12 @@ const LOG_TAG = 'router.js'
 
 let artgRouters = []
 
+app.get('/sitemap.xml', (req, res) => {
+    return manager.sitemap(req, res)
+})
+
 app.get('/', (req, res) => {
-    return res.render('article')
+    return manager.home(req, res)
 })
 
 app.get('/robots.txt', (req, res) => {

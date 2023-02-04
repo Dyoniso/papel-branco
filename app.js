@@ -8,6 +8,8 @@ const LOGTAG = 'app.js'
 const HOST = process.env.SERVER_HOST
 const PORT = process.env.SERVER_PORT
 
+/* Express */
+
 const app = express()
 
 app.set('view engine', 'pug')
@@ -24,7 +26,7 @@ httpServer.listen(PORT, HOST, () => {
 })
 
 module.exports = {
-    app : app,
+    app : app
 }
 
 // STARTS CRON

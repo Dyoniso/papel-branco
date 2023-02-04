@@ -20,7 +20,7 @@ const BING_SUBSCRIPTION_KEY = process.env.BING_SUBSCRIPTION_KEY
 const bingImgEndpoint = 'https://api.bing.microsoft.com/v7.0/images/search'
 
 let QTD_CATEGORY = process.env.QTD_CATEGORY
-let QTD_ARTICLES =  process.env.QTD_CATEGORY
+let QTD_ARTICLES =  process.env.QTD_ARTICLES
 let QTD_KEYWORDS = process.env.QTD_KEYWORDS
 let PRICIPAL_THEME = process.env.PRICIPAL_THEME
 let SAVE_FILES = (process.env.ENABLE_SAVE_FILES === 'true' || process.env.ENABLE_SAVE_FILES === 'yes')
