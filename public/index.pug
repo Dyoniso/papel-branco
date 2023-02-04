@@ -8,26 +8,29 @@ html(lang="en")
     body
         div.gr-top-bar
             a.bar-title(href='/') Overnews (Beta)
-        div.gr-bottom-bar
 
         div.container-fluid
 
-            div.mt-5.card-columns
-                each t in articles
-                    div.card.bg-dark 
-                        if (t.files[0])
-                            - let file = t.files[0]
-                            
-                            a(href=('/articles/' + t.page_path))
-                                img.card-img-top(src=("/assets/" + file.name) target="_blank" alt=(t.title))
+            if (articles.length > 0)
+                div.mt-5.card-columns
+                    each t in articles
+                        div.card.bg-dark 
+                            if (t.files[0])
+                                - let file = t.files[0]
+                                
+                                a(href=('/articles/' + t.page_path))
+                                    img.card-img-top(src=("/assets/" + file.name) target="_blank" alt=(t.title))
 
-                        div.card-body
-                            a(href=('/articles/' + t.page_path))
-                                h5.card-title= t.title
-                            p.card-text= t.content
-                            p.card-text
-                                small.text-muted= t.created
+                            div.card-body
+                                a(href=('/articles/' + t.page_path))
+                                    h5.card-title= t.title
+                                p.card-text= t.content
+                                p.card-text
+                                    small.text-muted= t.created
 
+            else
+                div.p-5.empty-info
+                    h4.text-center Caro leitor, não consegui processar nenhum artigo neste momento. Volte mais tarde para mais detalhes.
 
         include ./fotter
 

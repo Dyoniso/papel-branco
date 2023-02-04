@@ -22,8 +22,8 @@ function makeArticleObj(q) {
         title : q.title,
         page_path : q.page_path,
         content : q.content,
-        created : new Date(q.created).toDateString(),
-        updated : new Date(q.created).toDateString(),
+        created : new Date(q.created).toLocaleDateString('pt-BR'),
+        updated : new Date(q.updated).toLocaleDateString('pt-BR'),
         id_category : q.id_category,
         category_content : q.category_content,
         files : [],
@@ -48,18 +48,21 @@ module.exports = {
                 changefreq : 'daily',
                 priority : 0.3
             })
-    
-            const smStream = new SitemapStream({
-                hostname : PAGE_URL
-            })
-            const pipeline = smStream.pipe(createGzip())
-    
-            Readable.from(links).pipe(smStream)
-    
-            streamToPromise(pipeline).then(sm => {
-                sitemapData = sm
-                smStream.end()
-            })
+
+            if (links.length > 0) {
+                const smStream = new SitemapStream({
+                    hostname : PAGE_URL
+                })
+                const pipeline = smStream.pipe(createGzip())
+        
+                Readable.from(links).pipe(smStream)
+        
+                streamToPromise(pipeline).then(sm => {
+                    sitemapData = sm
+                    smStream.end()
+                })
+            }
+
         
         } catch (err) {
             logger.error('Erro ao sicronizar urls no sitemap.xml. Err: '+err.toString())

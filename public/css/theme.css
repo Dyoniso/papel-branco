@@ -1,15 +1,20 @@
 :root {
     --primary-color : #0e1121;
-    --secondary-color : #bba10e;
+    --secondary-color : linear-gradient(126deg, rgb(255, 195, 30) 70%, rgb(52, 0, 0) 100%);
     --secondary-color-dark : white;
     --color-text: white;
     --title-text-color: black;
     --title-bg-color: white;
-    --fotter-bg-color: #bba10e;
+    --fotter-bg-color: linear-gradient(180deg, rgb(226, 198, 41) 40%, rgba(2,0,52,1) 100%);
     --fotter-text-color: black;
     --card-background: #c5c5c5;
     --tag-background: #ffffff50;
     --tag-text-color: black;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
 }
 
 body {

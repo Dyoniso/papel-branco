@@ -8,35 +8,40 @@ html(lang="en")
         div.gr-top-bar
             a.bar-title(href='/') Overnews
 
-        div.container
-            div.article-title-container.row
-                div.article-header
-                    div.category 
-                        span Categoria/#{article.category_content}
-                    div.article-title
-                        div.font-weight-bold #{article.title}
-            
-            div.row
-                if (article.files[0])
-                    div.article-img-set
-                        - let file = article.files[0] 
-                        img(src=("/assets/" + file.name), alt=(article.title), srcset="")
-
-            div.row
-                div.col-8
-                    p.article-content= article.content
-
-
-                div.col-4
-                    div.mt-5.secondary-img-content
-                        if (article.files[1])
-                            - let file = article.files[1] 
-
+        if article
+            div.container
+                div.article-title-container.row
+                    div.article-header
+                        div.category 
+                            span Categoria/#{article.category_content}
+                        div.article-title
+                            div.font-weight-bold #{article.title}
+                
+                div.row
+                    if (article.files[0])
+                        div.article-img-set
+                            - let file = article.files[0] 
                             img(src=("/assets/" + file.name), alt=(article.title), srcset="")
 
-                    div.mt-4.tag-container
-                        each tag in article.keywords
-                            span.tag-content #{tag.content}
+                div.row
+                    div.col-8
+                        p.article-content= article.content
+
+
+                    div.col-4
+                        div.mt-5.secondary-img-content
+                            if (article.files[1])
+                                - let file = article.files[1] 
+
+                                img(src=("/assets/" + file.name), alt=(article.title), srcset="")
+
+                        div.mt-4.tag-container
+                            div.d-flex.flex-wrap.w-100
+                                each tag in article.keywords
+                                    span.tag-content #{tag.content}
+
+                        div.mt-2
+                            p Postado em #{article.created}
 
 
         include ./fotter
