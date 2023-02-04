@@ -1,0 +1,17 @@
+:root {
+    --primary-color : #0e1121;
+    --secondary-color : #bba10e;
+    --secondary-color-dark : white;
+    --color-text: white;
+    --title-text-color: black;
+    --title-bg-color: white;
+    --fotter-bg-color: #bba10e;
+    --fotter-text-color: black;
+    --card-background: #c5c5c5;
+    --tag-background: #ffffff50;
+    --tag-text-color: black;
+}
+
+body {
+    background-color: var(--primary-color)!important;
+}

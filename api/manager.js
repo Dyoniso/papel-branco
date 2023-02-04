@@ -20,9 +20,10 @@ function makeArticleObj(q) {
     return {
         id_article : q.id_article,
         title : q.title,
+        page_path : q.page_path,
         content : q.content,
-        created : q.created,
-        updated : q.updated,
+        created : new Date(q.created).toDateString(),
+        updated : new Date(q.created).toDateString(),
         id_category : q.id_category,
         category_content : q.category_content,
         files : [],
@@ -82,13 +83,15 @@ module.exports = {
                 SELECT
                     ATG."ID_ARTICLE" as ID_ARTICLE,
                     ATG."TITLE" as TITLE,
+                    ATG."CONTENT" as CONTENT,
                     ATG."CREATED" as CREATED,
                     ATG."UPDATED" as UPDATED,
+                    ATG."PAGE_PATH" as PAGE_PATH,
                     CT."ID_CATEGORY" as ID_CATEGORY, 
                     CT."CONTENT" as CATEGORY_CONTENT
                 FROM "ARTICLE" ATG
                 INNER JOIN "ARTG_CATEGORY" CT ON CT."ID_CATEGORY" = ATG."ID_CATEGORY"
-                ORDER BY ATG."ID_ARTICLE" DESC
+                ORDER BY random() DESC
                 LIMIT $1
             `, [PAGE_SIZE])
         } catch (err) {}
@@ -128,10 +131,28 @@ module.exports = {
 
         } catch (err) { throw err}
 
-        let articles = qs.map(async q => {
+        let articles = qs.map(q => {
             let article = makeArticleObj(q)
+            if (article.content.length > 120)
+                article.content = article.content.substr(0, 150) + '... (Clique para Continuar lendo)'
+
             article.keywords = cs.filter(f => f.ID_ARTICLE === article.id_article)
+            article.keywords = article.keywords.map(f => f = {
+                id : f.ID_ARTICLE_KEYWORD,
+                content : f.CONTENT
+            })
+
             article.files = ft.filter(f => f.ID_ARTICLE === article.id_article)
+            article.files = article.files.map(f => f = {
+                id_file : f.ID_FILE,
+                name : f.FILENAME,
+                type : f.MIMETYPE,
+                url : f.ORIGIN_URL,
+                width : f.WIDTH,
+                height : f.HEIGHT,
+                color : f.COLOR
+            })
+
             return article
         })
 
@@ -212,8 +233,6 @@ module.exports = {
                 })
 
             } catch (err) {}
-
-            console.log(article)
 
             return res.render('article', { article : article })
         }

@@ -1,11 +1,12 @@
 doctype html
 html(lang="en")
-    - let title = "Exemplo de Artigo"
+    - let title = article.title
     include ./head.pug
+    link(rel="stylesheet", href="/pub/essents.css")
 
     body
         div.gr-top-bar
-            div.bar-title Overnews
+            a.bar-title(href='/') Overnews
 
         div.container
             div.article-title-container.row
@@ -19,7 +20,7 @@ html(lang="en")
                 if (article.files[0])
                     div.article-img-set
                         - let file = article.files[0] 
-                        img(src=("/assets/" + file.name), alt=(file.name), srcset="")
+                        img(src=("/assets/" + file.name), alt=(article.title), srcset="")
 
             div.row
                 div.col-8
@@ -31,12 +32,11 @@ html(lang="en")
                         if (article.files[1])
                             - let file = article.files[1] 
 
-                            img(src=("/assets/" + file.name), alt=(file.name), srcset="")
+                            img(src=("/assets/" + file.name), alt=(article.title), srcset="")
 
                     div.mt-4.tag-container
                         each tag in article.keywords
                             span.tag-content #{tag.content}
 
 
-        div.footer-container
-            div.font-weight-bold Overnews 2023 IC
+        include ./fotter

@@ -1,10 +1,33 @@
 doctype html
 html(lang="en")
-    head
-        meta(charset="UTF-8")
-        meta(http-equiv="X-UA-Compatible", content="IE=edge")
-        meta(name="viewport", content="width=device-width, initial-scale=1.0")
-        title Overnews
-    body 
+    - let title = "Artigos Aleatórios"
+    include ./head.pug
+    link(rel="stylesheet", href="/pub/home.css")
 
-        
+
+    body
+        div.gr-top-bar
+            a.bar-title(href='/') Overnews (Beta)
+        div.gr-bottom-bar
+
+        div.container-fluid
+
+            div.mt-5.card-columns
+                each t in articles
+                    div.card.bg-dark 
+                        if (t.files[0])
+                            - let file = t.files[0]
+                            
+                            a(href=('/articles/' + t.page_path))
+                                img.card-img-top(src=("/assets/" + file.name) target="_blank" alt=(t.title))
+
+                        div.card-body
+                            a(href=('/articles/' + t.page_path))
+                                h5.card-title= t.title
+                            p.card-text= t.content
+                            p.card-text
+                                small.text-muted= t.created
+
+
+        include ./fotter
+
