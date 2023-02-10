@@ -14,3 +14,4 @@ Criar uma opção onde as imagens não sejam amazenadas no servidor
 Criar uma opção onde as imagens não sejam amazenadas no servidor
 Otimizar imagens na página home
 Otimizar sistema de busca de imagens. As imagens do artigos tem quer mais acertivos
+Mudar sistema de KeyWords, Deixar as palavras chaves mais acertivas para as imagens
