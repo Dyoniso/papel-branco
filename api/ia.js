@@ -42,6 +42,7 @@ const gptWordlistQuery = `Liste-me ${QTD_ARTICLES} palavras ${ PRICIPAL_THEME.le
 const gptTitleQuery = 'Escreva-me um título de um artigo usando a palavra:' 
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptTagsQuery = `Liste-me em inglês ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
+const gptImagesKeywordsQuery = `Gere uma keyword de pesquisa de imagem com a seguinte frase:`
 
 async function generateText(ask) {
     return await openai.createCompletion({
@@ -222,6 +223,9 @@ async function generateArticle(idCategory, title) {
                     created : gptData.created,
                 }
 
+                const imageKeyword = await generateSearchImageKeyword(title)
+                if (imageKeyword) artcObj.imageTag = imageKeyword.keyword
+
                 logger.warning('Artigo criado com sucesso!', LOGTAG)
 
                 callback(artcObj)
@@ -300,27 +304,25 @@ exports.startOpenAiSync = async() => {
                     try {
                         let qs = await db.query(`
                             INSERT INTO "ARTICLE" (
-                                "TITLE", "ID_CATEGORY", "GPT_ID", "CONTENT", "PAGE_PATH"
-                            ) VALUES ($1, $2, $3, $4, $5) RETURNING "ID_ARTICLE"
+                                "TITLE", "ID_CATEGORY", "GPT_ID", "CONTENT", "PAGE_PATH", "IMAGE_TAG"
+                            ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING "ID_ARTICLE"
                         `, [
                             article.title,
                             article.id_category,
                             article.gpt_id,
                             article.content,
-                            article.page_path
+                            article.page_path,
+                            article.imageTag
                         ])
         
                         if (qs[0] && qs[0].ID_ARTICLE) {
                             let articleID = qs[0].ID_ARTICLE
-                            let keywords = await generateKeywords(articleID, article.title)
-        
-                            if (keywords && keywords.length > 0) {
-                                await searchSaveFile(articleID, keywords.join([separator = ' ']))
-                            }
+
+                            await generateKeywords(articleID, article.title)
+                            if (article.imageTag) await searchSaveFile(articleID, article.imageTag)
+                            await syncDBPagesMaping()
         
                             logger.info('[Articles] Novo artigo adicionado ao banco de dados. Data: ' + JSON.stringify(article), LOGTAG)
-                        
-                            await syncDBPagesMaping()
                         }
         
                     } catch (err) {
@@ -340,6 +342,34 @@ exports.startOpenAiSync = async() => {
 }
 
 exports.startOpenAiSync()
+
+async function generateSearchImageKeyword(title) {
+    logger.info('Gerando palavras chaves para a pesquisa de imagem com base o título: '+title, LOGTAG)
+
+    let gptData = await generateText(gptImagesKeywordsQuery + ' ' + title)
+
+    if (gptData && gptData.choices[0]) {
+        
+        let formatedData = gptData.choices[0].text
+        .replace(/\n/gm, '')
+        .replace(/\"/gm, '')
+
+        let obj = { 
+            gpt_id : gptData.id,
+            keyword : formatedData,
+            created : gptData.created
+        }
+
+        logger.info('Mapa de palavra chave gerado com sucesso. Keyword: ' + obj.keyword, LOGTAG)
+
+        return obj
+
+    } else {
+
+        logger.error('Não foi possível gerar uma palavra chave do seguinte título: '+title, LOGTAG)
+        return null
+    }
+}
 
 async function generateKeywords(idArticle, title) {
     logger.warning('Gerando palavras chaves do seguinte título: ' + title, LOGTAG)
