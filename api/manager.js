@@ -33,18 +33,12 @@ function makeArticleObj(q) {
 
 module.exports = {
 
-    makeSitemap : async() => {
+    makeSitemap : async(paths) => {
         try {
-            logger.warning('Gerando um novo esquema de Sitemap.xml')
-    
-            let qs = await db.query(`
-                SELECT "PAGE_PATH" FROM "ARTICLE"
-                ORDER BY "ID_ARTICLE" DESC
-                LIMIT 10000
-            `)
-    
-            links = qs.map(f => f = {
-                url : '/articles/'+f.PAGE_PATH,
+            logger.warning('Atualizando o Sitemap.xml com as urls: '+ JSON.stringify(paths), LOG_TAG)
+
+            let links = paths.map(f => f = {
+                url : f,
                 changefreq : 'daily',
                 priority : 0.3
             })

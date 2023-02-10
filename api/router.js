@@ -22,8 +22,8 @@ module.exports.getArtgRouters = () => {
     return artgRouters
 }
 
-module.exports.mapRoutes = arr => {
-    arr.map(f => {
+module.exports.mapRoutes = async arr => {
+    await arr.map(f => {
         const path = '/articles/'+f.PAGE_PATH 
         logger.info('Mapeando novo caminho: ' + path, LOG_TAG)
         app.get(path, (req, res) => {
@@ -31,6 +31,8 @@ module.exports.mapRoutes = arr => {
             return manager.renderArticles(req, res)
         })
 
-        artgRouters.push({ id : f.ID_ARTICLE, path })
+        artgRouters.push({ id : f.ID_ARTICLE, path : path })
     })
+
+    manager.makeSitemap(artgRouters.map(f => f = f.path ))
 }
