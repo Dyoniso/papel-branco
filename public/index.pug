@@ -19,7 +19,8 @@ html(lang="en")
                                 - let file = t.files[0]
                                 
                                 a(href=('/articles/' + t.page_path))
-                                    img.card-img-top(src=("/assets/" + file.name) target="_blank" alt=(t.title))
+                                    - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
+                                    img.card-img-top(src=(imgUrl) target="_blank" alt=(t.title))
 
                             div.card-body
                                 a(href=('/articles/' + t.page_path))

@@ -20,8 +20,10 @@ html(lang="en")
                 div.row
                     if (article.files[0])
                         div.article-img-set
-                            - let file = article.files[0] 
-                            img(src=("/assets/" + file.name), alt=(article.title), srcset="")
+                            - let file = article.files[0]
+                            - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
+
+                            img(src=(imgUrl), alt=(article.title), srcset="")
 
                 div.row
                     div.col-8
@@ -32,8 +34,9 @@ html(lang="en")
                         div.mt-5.secondary-img-content
                             if (article.files[1])
                                 - let file = article.files[1] 
+                                - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
 
-                                img(src=("/assets/" + file.name), alt=(article.title), srcset="")
+                                img(src=(imgUrl), alt=(article.title), srcset="")
 
                         div.mt-4.tag-container
                             div.d-flex.flex-wrap.w-100

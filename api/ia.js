@@ -39,7 +39,7 @@ const similarity = new Similarity()
 
 /* CHAT GPT QUERIES */
 const gptWordlistQuery = `Liste-me ${QTD_ARTICLES} palavras ${ PRICIPAL_THEME.length > 0 ? `sobre ${PRICIPAL_THEME}` : ''} de modo aleatório`
-const gptTitleQuery = 'Escreva-me um título de um artigo usando a palavra:' 
+const gptTitleQuery = 'Gere um título aleatório sobre um artigo usando a palavra:' 
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptTagsQuery = `Liste-me em inglês ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
 const gptImagesKeywordsQuery = `Gere uma keyword de pesquisa de imagem com a seguinte frase:`
@@ -75,6 +75,8 @@ async function searchSaveFile(idArticle, query) {
     }
 
     const headers = {
+        "User-Agent": "Mozilla",
+        "Content-Type": "application/json",
         'Ocp-Apim-Subscription-Key': BING_SUBSCRIPTION_KEY,
     }
 
@@ -88,54 +90,89 @@ async function searchSaveFile(idArticle, query) {
                 width : f.width,
                 height : f.height,
                 color : f.accentColor,
-                mimetype : f.encodingFormat
+                mimetype : f.encodingFormat,
+                previewUrl : f.thumbnailUrl,
+                thumbnail : f.thumbnail
             }
         })
 
         contents.map(async f => {
-            axios({
-                method : 'get',
-                url : f.url,
-                responseType: 'stream'
-            }).then(async fres => {
+            await axios.get(f.url, { 
+                responseType: 'arraybuffer' ,
+            })
+            .then(async fres => {
                 const filename = f.gid + '.' + f.mimetype
+                const prevName = 'PREV-' + filename
+                        
+                const prevPath = `./public/assets/${prevName}`
+                const path = `./public/assets/${filename}`
+
+                //Salvar arquivo no servidor
+                let stored = 0
 
                 if (SAVE_FILES) {
-                    const file = fs.createWriteStream(`./public/assets/${filename}`)
-                    fres.data.pipe(file)
-                    file.on('finish', () => {
-                        file.close()
-                        logger.info('Novo arquivo adicionado no /assets/'+filename, LOGTAG)
+                    const body = fres.data.toString('binary')
+                    fs.writeFileSync(path, body, 'binary')
+
+                    logger.info('Novo arquivo de imagem adicionado no /assets/'+filename, LOGTAG)
+                    stored = 1
+
+                    await axios.get(f.previewUrl, { 
+                        responseType: 'arraybuffer',
                     })
-                }
-        
+                    .then(async fres => {
+                        const body = fres.data.toString('binary')
+                        fs.writeFileSync(prevPath, body, 'binary');
+                        logger.info('Novo thumb de imagem adicionado no /assets/'+prevName, LOGTAG)
+                    })
+                } 
+
+                //Salvar arquivo no banco
                 try {
-                    let qs = await db.query(`
+                    let qrImg = [filename, f.mimetype, f.url, f.width, f.height, f.color, stored, 0]
+                    let pvImg = [prevName, f.mimetype, f.previewUrl, f.thumbnail.width, f.thumbnail.height,  f.color, stored, 1]
+                    const query = `
                         INSERT INTO "FILE" (
                             "FILENAME",
                             "MIMETYPE",
                             "ORIGIN_URL",
                             "WIDTH",
                             "HEIGHT",
-                            "COLOR"
+                            "COLOR",
+                            "STORED",
+                            "PREVIEW"
                         ) VALUES (
-                            $1, $2, $3, $4, $5, $6
+                            $1, $2, $3, $4, $5, $6, $7, $8
                         ) RETURNING "ID_FILE";
-                    `, [filename, f.mimetype, f.url, f.width, f.height, f.color])
+                    `
+
+                    let qs = await db.query(query, qrImg)
+                    let qsr = await db.query(query, pvImg)
         
                     if (qs[0] && qs[0].ID_FILE) {
                         let idFile = qs[0].ID_FILE
-        
+                        await addArticleFile([idFile, idArticle])
+
+                        logger.info('Nova imagem salvo no banco de dados: '+filename, LOGTAG)
+                    }
+
+                    if (qsr[0] && qsr[0].ID_FILE) {
+                        let idFile = qsr[0].ID_FILE
+                        await addArticleFile([idFile, idArticle])
+
+                        logger.info('Novo thumb de imagem salvo no banco de dados: '+prevName, LOGTAG)
+                    }
+
+                    async function addArticleFile(arr) {
                         await db.query(`
                             INSERT INTO "ARTICLE_FILE" (
                                 "ID_FILE", "ID_ARTICLE"
                             ) VALUES (
                                 $1, $2
                             );
-                        `, [idFile, idArticle])
+                        `, arr)
                     }
-        
-                    logger.info('Novo arquivo salvo no banco de dados: '+filename, LOGTAG)
+    
         
                 } catch (err) {
                     logger.error('Erro ao gravar informações do arquivo no banco de dados.', LOGTAG)
@@ -173,7 +210,7 @@ async function makeWordRandomList() {
         return obj
 
     } else {
-        logger.error('Nenhum tipo de palavra foi gerado', LOGTAG)
+        logger.error('Não foi possível gerar nenhuma lista de palavras neste momento.', LOGTAG)
         return null
     }
 }
@@ -274,22 +311,22 @@ exports.startOpenAiSync = async() => {
                     logger.error('Erro ao mudar status da categoria. Err: '+err.toString(), LOGTAG)
                 }
             }
+        }
 
-            if (wordFmlData.length > 0) {
-                let qs = await db.query(format(`
-                    INSERT INTO "ARTG_CATEGORY" (
-                        "CONTENT", "GPT_ID", "API_ID"
-                    ) VALUES %L RETURNING "API_ID", "ID_CATEGORY";
-                `, wordFmlData))
-                
-                wordlist.contents.map(f => {
-                    qs.map(q => {
-                        if (q.API_ID === w.tm_id) {
-                            return w.id_category = q.ID_CATEGORY
-                        }
-                    })
+        if (wordFmlData.length > 0) {
+            let qs = await db.query(format(`
+                INSERT INTO "ARTG_CATEGORY" (
+                    "CONTENT", "GPT_ID", "API_ID"
+                ) VALUES %L RETURNING "API_ID", "ID_CATEGORY";
+            `, wordFmlData))
+            
+            wordlist.contents.map(f => {
+                qs.map(q => {
+                    if (q.API_ID === f.tm_id) {
+                        return f.id_category = q.ID_CATEGORY
+                    }
                 })
-            }
+            })
         }
 
         //Criar Artigo

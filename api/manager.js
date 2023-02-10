@@ -88,7 +88,7 @@ module.exports = {
                     CT."CONTENT" as CATEGORY_CONTENT
                 FROM "ARTICLE" ATG
                 INNER JOIN "ARTG_CATEGORY" CT ON CT."ID_CATEGORY" = ATG."ID_CATEGORY"
-                ORDER BY random() DESC
+                ORDER BY ATG."ID_ARTICLE" DESC
                 LIMIT $1
             `, [PAGE_SIZE])
         } catch (err) {}
@@ -118,11 +118,15 @@ module.exports = {
                     F."ORIGIN_URL",
                     F."WIDTH",
                     F."HEIGHT",
-                    F."COLOR"
+                    F."COLOR",
+                    F."PREVIEW",
+                    F."STORED"
                 FROM
                     "FILE" F
                 INNER JOIN "ARTICLE_FILE" FL ON F."ID_FILE" = FL."ID_FILE"
-                ORDER BY FL."ID_ARTICLE" DESC
+                WHERE
+                    F."PREVIEW" = 1
+                ORDER BY random() 
                 LIMIT ($1 * 2)
             `, [PAGE_SIZE])
 
@@ -147,11 +151,14 @@ module.exports = {
                 url : f.ORIGIN_URL,
                 width : f.WIDTH,
                 height : f.HEIGHT,
-                color : f.COLOR
+                color : f.COLOR,
+                stored : f.STORED,
+                preview : f.PREVIEW
             })
 
             return article
         })
+
 
         return res.render('index', { articles : articles })
     },
@@ -211,10 +218,14 @@ module.exports = {
                         F."ORIGIN_URL",
                         F."WIDTH",
                         F."HEIGHT",
-                        F."COLOR"
+                        F."COLOR",
+                        F."STORED"
                     FROM
                         "FILE" F
                     INNER JOIN "ARTICLE_FILE" FL ON FL."ID_ARTICLE" = $1 AND F."ID_FILE" = FL."ID_FILE"
+                    WHERE
+                        F."PREVIEW" = 0
+                    ORDER BY F."WIDTH" DESC
                 `, [article.id_article])
 
                 qs.map(f => {
@@ -225,7 +236,8 @@ module.exports = {
                         url : f.ORIGIN_URL,
                         width : f.WIDTH,
                         height : f.HEIGHT,
-                        color : f.COLOR
+                        color : f.COLOR,
+                        stored : f.STORED
                     })
                 })
 
