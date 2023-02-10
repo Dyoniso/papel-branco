@@ -9,7 +9,7 @@ OK As categorias por agora será um wordlist de palavras aleatórias, para evita
 OK Limitador de carga para evitar o erro 429
 Criar uma opção onde as imagens não sejam amazenadas no servidor
 
-# Todos List 10/02/2023
+# Todo List 10/02/2023
 
 Criar uma opção onde as imagens não sejam amazenadas no servidor
 Otimizar imagens na página home
