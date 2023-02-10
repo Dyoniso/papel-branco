@@ -3,15 +3,15 @@ Um site que usa o inteligência artificial para gerar artigos aleatórios
 
 # Todo List 09/02/2023
 
-OK Simplificação dos Jobs, nesta nova atualização, terá um job por dia onde o mesmo irá iniciar a sicronização de artigos
-OK Configuração de Artigos: Agora terá apenas uma configuração onde definirá o numero maximo de artigos
-OK As categorias por agora será um wordlist de palavras aleatórias, para evitar que artigos sejam genericos e sem graça.
-OK Limitador de carga para evitar o erro 429
-Criar uma opção onde as imagens não sejam amazenadas no servidor
+1. OK Simplificação dos Jobs, nesta nova atualização, terá um job por dia onde o mesmo irá iniciar a sicronização de artigos
+2. OK Configuração de Artigos: Agora terá apenas uma configuração onde definirá o numero maximo de artigos
+3. OK As categorias por agora será um wordlist de palavras aleatórias, para evitar que artigos sejam genericos e sem graça.
+4. OK Limitador de carga para evitar o erro 429
+5. Criar uma opção onde as imagens não sejam amazenadas no servidor
 
 # Todo List 10/02/2023
 
-Criar uma opção onde as imagens não sejam amazenadas no servidor
-Otimizar imagens na página home
-Otimizar sistema de busca de imagens. As imagens do artigos tem quer mais acertivos
-Mudar sistema de KeyWords, Deixar as palavras chaves mais acertivas para as imagens
+1. Criar uma opção onde as imagens não sejam amazenadas no servidor
+2. Otimizar imagens na página home
+3. Otimizar sistema de busca de imagens. As imagens do artigos tem quer mais acertivos
+4. Mudar sistema de KeyWords, Deixar as palavras chaves mais acertivas para as imagens
