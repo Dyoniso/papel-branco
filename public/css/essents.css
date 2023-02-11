@@ -38,7 +38,7 @@ p {
     max-height: 320px;
     margin-top: 12px;
     margin-bottom: 12px;
-    background-color: black;
+    background: black;
 }
 
 .secondary-img-content img {
@@ -50,7 +50,7 @@ p {
 
 .article-img-set img {
     max-width: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .footer-container {

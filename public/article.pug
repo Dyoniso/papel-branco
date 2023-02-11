@@ -19,8 +19,8 @@ html(lang="en")
                 
                 div.row
                     if (article.files[0])
-                        div.article-img-set
-                            - let file = article.files[0]
+                        - let file = article.files[0]
+                        div.article-img-set(style=("background:#" + file.color))
                             - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
 
                             img(src=(imgUrl), alt=(article.title), srcset="")

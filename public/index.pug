@@ -20,7 +20,7 @@ html(lang="en")
                                 
                                 a(href=('/articles/' + t.page_path))
                                     - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
-                                    img.card-img-top(src=(imgUrl) target="_blank" alt=(t.title))
+                                    img.card-img-top(src=(imgUrl) target="_blank" alt=(t.title) style=("background:#" + file.color))
 
                             div.card-body
                                 a(href=('/articles/' + t.page_path))

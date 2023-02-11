@@ -13,9 +13,9 @@
 }
 
 .card-img-top {
-    background-color: black;
+    background: black;
     max-height: 250px;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 h5, h4, p {

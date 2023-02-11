@@ -42,7 +42,7 @@ const gptWordlistQuery = `Liste-me ${QTD_ARTICLES} palavras ${ PRICIPAL_THEME.le
 const gptTitleQuery = 'Gere um título aleatório sobre um artigo usando a palavra:' 
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
 const gptTagsQuery = `Liste-me em inglês ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
-const gptImagesKeywordsQuery = `Gere uma keyword de pesquisa de imagem com a seguinte frase:`
+const gptImagesKeywordsQuery = `Escreva-me uma pesquisa de imagem inspirado na seguinte frase:`
 
 async function generateText(ask) {
     return await openai.createCompletion({
@@ -221,7 +221,9 @@ async function generateArticleTitle(word) {
     let gptData = await generateText(gptTitleQuery + ` ${word}`)
 
     if (gptData && gptData.choices[0]) {
-        let formatedData = gptData.choices[0].text.replace(/\/n/gm, '').replace(/\"/gm, '')
+        let formatedData = gptData.choices[0].text
+        .replace(/\n/gm, '')
+        .replace(/\"/gm, '')
 
         let obj = { 
             gpt_id : gptData.id,
