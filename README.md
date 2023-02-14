@@ -14,4 +14,11 @@ Um site que usa o inteligência artificial para gerar artigos aleatórios
 1. OK Criar uma opção onde as imagens não sejam amazenadas no servidor
 2. OK Otimizar imagens na página home
 3. OK Otimizar sistema de busca de imagens. As imagens do artigos tem quer mais acertivos
-4. Mudar sistema de KeyWords, Deixar as palavras chaves mais acertivas para as imagens
+4. OK Mudar sistema de KeyWords, Deixar as palavras chaves mais acertivas para as imagens
+
+# Todo List 14/02/2023
+
+1. Otimizar Layout da aplicação.
+2. Criar logo para a aplicação.
+3. Otimizar tema da aplicação.
+4. Desenvolver um layout único para celular.
