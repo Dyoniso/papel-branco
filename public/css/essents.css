@@ -85,6 +85,8 @@ pre {
 }
 
 .left-card {
+    position: sticky;
+    top: 18px;
     box-shadow: 4px 4px 4px var(--secondary-color);
     border-radius: 8px;
 }
