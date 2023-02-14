@@ -4,15 +4,23 @@
     object-fit: contain;
 }
 
+a:hover {
+    text-decoration: none;
+}
+
 h5, h4, p {
     color: var(--color-text);
 }
 
-@media only screen and (max-width: 800px) {
-    .gr-top-bar .bar-title {
-        font-size: 2rem;
-    }
+.card {
+    background-color: var(--secondary-color);
+}
 
+.card-text {
+    white-space: pre-wrap;
+}
+
+@media only screen and (max-width: 800px) {
     .card-columns {
         column-count: 2;
     }

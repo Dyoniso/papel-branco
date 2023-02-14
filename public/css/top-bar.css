@@ -33,3 +33,29 @@
     width: 100%;
     object-fit: cover;
 }
+
+@media screen and (max-width: 850px) {
+    .gr-top-bar .bar-title  {
+        font-size: 3rem;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .gr-top-bar .bar-title  {
+        font-size: 2rem;
+    }
+
+    .gr-top-bar .gr-icon {
+        width: 60px;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .gr-top-bar .bar-title  {
+        font-size: 1rem;
+    }
+
+    .gr-top-bar .gr-icon {
+        width: 40px;
+    }
+}

@@ -9,20 +9,23 @@ html(lang="en")
 
         if article
             div.container
-                div.article-title-container.row
-                    div.article-header
-                        div.category 
-                            span /#{article.category_content}
-                        div.article-title
-                            div.font-weight-bold #{article.title}
+                div.row
+                    div.col-12
+                        div.article-title-container
+                            div.article-header
+                                div.category 
+                                    span /#{article.category_content}
+                                div.article-title
+                                    div.font-weight-bold #{article.title}
                 
                 div.row
-                    if (article.files[0])
-                        - let file = article.files[0]
-                        div.article-img-set(style=("background:#" + file.color))
-                            - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
+                    div.col-12
+                        if (article.files[0])
+                            - let file = article.files[0]
+                            div.article-img-set(style=("background:#" + file.color))
+                                - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
 
-                            img(src=(imgUrl), alt=(article.title), srcset="")
+                                img(src=(imgUrl), alt=(article.title), srcset="")
 
                 div.row
                     div.col-8

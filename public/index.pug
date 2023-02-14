@@ -1,6 +1,6 @@
 doctype html
 html(lang="en")
-    - let title = "Artigos Aleatórios"
+    - let title = "Artigos em Geral"
     include ./head.pug
     link(rel="stylesheet", href="/pub/home.css")
 
@@ -12,8 +12,8 @@ html(lang="en")
 
             if (articles.length > 0)
                 div.mt-5.card-columns
-                    each t in articles
-                        div.card.bg-dark 
+                    each t in articles    
+                        div.card
                             if (t.files[0])
                                 - let file = t.files[0]
                                 
@@ -23,10 +23,10 @@ html(lang="en")
 
                             div.card-body
                                 a(href=('/articles/' + t.page_path))
-                                    h5.card-title= t.title
-                                p.card-text= t.content
-                                p.card-text
-                                    small.text-muted= t.created
+                                    h5.card-title.font-weight-bold= t.title
+                                pre.card-text= t.content
+                                p.card-post
+                                    small.text-danger.font-weigth-bold= t.created
 
             else
                 div.p-5.empty-info
