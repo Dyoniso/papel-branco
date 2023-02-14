@@ -1,0 +1,35 @@
+.gr-top-bar {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    padding: 8px;
+}
+
+.gr-top-bar div {
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.gr-top-bar .bar-title {
+    font-weight: bold;
+    font-size: 4rem;
+    text-decoration: none;
+    color: var(--color-text);
+    font-family: app-font, sans-serif;
+}
+
+.gr-top-bar .bar-title:hover {
+    text-decoration: none;
+}
+
+.gr-top-bar .gr-icon {
+    width: 80px;
+    height: 100%;
+    margin-right: 12px;
+}
+
+.gr-top-bar .gr-icon img {
+    width: 100%;
+    object-fit: cover;
+}

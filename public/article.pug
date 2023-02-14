@@ -5,15 +5,14 @@ html(lang="en")
     link(rel="stylesheet", href="/pub/essents.css")
 
     body
-        div.gr-top-bar
-            a.bar-title(href='/') Papel Branco
+        include ./topBar.pug
 
         if article
             div.container
                 div.article-title-container.row
                     div.article-header
                         div.category 
-                            span Categoria/#{article.category_content}
+                            span /#{article.category_content}
                         div.article-title
                             div.font-weight-bold #{article.title}
                 
@@ -31,23 +30,24 @@ html(lang="en")
 
 
                     div.col-4
-                        if (article.files[1])
-                            - let file = article.files[1] 
-                            div.mt-5.secondary-img-content(style=("background:#" + file.color))
-                                - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
-                                img(src=(imgUrl), alt=(article.title), srcset="")
+                        div.left-card.p-3.mt-5
+                            if (article.files[1])
+                                - let file = article.files[1] 
+                                div.secondary-img-content(style=("background:#" + file.color))
+                                    - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
+                                    img(src=(imgUrl), alt=(article.title), srcset="")
 
-                        div.mt-2
-                            p Postado em #{article.created}
+                            div.mt-2
+                                p.posted-date Postado em #{article.created}
 
-                        div.mt-4.tag-container
-                            - let bgTagColor = 'var(--tag-background)'
-                            if article.files[0]
-                                - bgTagColor = '#' + article.files[0].color + '50'
+                            div.mt-4.tag-container
+                                - let bgTagColor = 'var(--tag-background)'
+                                if article.files[0]
+                                    - bgTagColor = '#' + article.files[0].color + '50'
 
-                            div.d-flex.flex-wrap.w-100
-                                each tag in article.keywords
-                                    span.tag-content(style=("background:" + bgTagColor)) #{tag.content}
+                                div.d-flex.flex-wrap.w-100
+                                    each tag in article.keywords
+                                        span.tag-content(style=("background:" + bgTagColor)) #{tag.content}
 
 
         include ./fotter

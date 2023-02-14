@@ -1,13 +1,14 @@
 :root {
     --primary-color : #e6e6e6;
-    --secondary-color : linear-gradient(126deg, rgb(255, 195, 30) 70%, rgb(52, 0, 0) 100%);
-    --secondary-color-dark : white;
+    --secondary-color : #cdcbcb;
+    --secondary-color-dark : #bebebe;
     --color-text: black;
+    --color-text-secondary: #656565;
     --title-text-color: white;
     --title-bg-color: black;
-    --fotter-bg-color: #c7c7c6;
+    --fotter-bg-color: #dededc;
     --fotter-text-color: black;
-    --card-background: #c5c5c5;
+    --card-background: #d7d7d7;
     --tag-background: #0f2d9b50;
     --tag-text-color: black;
 }

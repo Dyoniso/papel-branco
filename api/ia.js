@@ -41,7 +41,7 @@ const similarity = new Similarity()
 const gptWordlistQuery = `Liste-me ${QTD_ARTICLES} palavras ${ PRICIPAL_THEME.length > 0 ? `sobre ${PRICIPAL_THEME}` : ''} de modo aleatório`
 const gptTitleQuery = 'Gere um título aleatório sobre um artigo usando a palavra:' 
 const gptArticleQuery = 'Escreva-me com detalhe um artigo envolvente, espirituoso que usa experiências pessoais e com alguns exemplos'
-const gptTagsQuery = `Liste-me em inglês ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
+const gptTagsQuery = `Liste-me ${QTD_KEYWORDS} palavras-chave do seguinte texto:`
 const gptImagesKeywordsQuery = `Escreva-me uma pesquisa de imagem inspirado na seguinte frase:`
 
 async function generateText(ask) {
