@@ -10,6 +10,7 @@
     font-weight: bold;
     font-size: 3rem;
     color: var(--color-text);
+    font-family: app-font, sans-serif;
 }
 
 .card-img-top {

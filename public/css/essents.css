@@ -1,18 +1,26 @@
-p {
+pre {
     font-size: 20px;
     color: var(--color-text);
 }
 
 .gr-top-bar {
     width: 100%;
+    display: flex;
+    justify-content: center;
     margin-bottom: 2rem;
     padding: 8px;
 }
 
 .gr-top-bar .bar-title {
     font-weight: bold;
-    font-size: 3rem;
+    font-size: 4rem;
+    text-decoration: none;
     color: var(--color-text);
+    font-family: app-font, sans-serif;
+}
+
+.gr-top-bar .bar-title:hover {
+    text-decoration: none;
 }
 
 .article-min-img-set {
@@ -39,13 +47,20 @@ p {
     margin-top: 12px;
     margin-bottom: 12px;
     background: black;
+    border-radius: 8px;
+}
+
+.secondary-img-content {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    max-height: 250px;
+    border-radius: 8px
 }
 
 .secondary-img-content img {
-    width: 100%;
-    max-height: 250px;
+    max-width: 100%;
     object-fit: contain;
-    border-radius: 8px;
 }
 
 .article-img-set img {
@@ -75,15 +90,18 @@ p {
 }
 
 .article-content {
-    margin-top: 1rem;
     white-space: pre-wrap;
-    font-weight: bold;
+}
+
+.article-content::first-letter{
+    font-size: 2rem;
+    color: var(--red);
 }
 
 .category span {
     padding: 2px;
     border-radius: 4px;
-    color: var(--title-bg-color);
+    color: var(--color-text);
     font-weight: bold;
 }
 
@@ -97,11 +115,10 @@ p {
 }
 
 .tag-content {
-    border-radius: 18px;
+    border-radius: 8px;
     margin-right: 4px;
     margin-top: 4px;
-    background: #ffffff50;
-    font-weight: bold;
+    background: var(--tag-background);
     color: var(--tag-text-color);
     padding: 4px;
     color: var(--color-text);

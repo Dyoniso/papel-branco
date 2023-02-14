@@ -1,14 +1,14 @@
 :root {
-    --primary-color : #0e1121;
+    --primary-color : #e6e6e6;
     --secondary-color : linear-gradient(126deg, rgb(255, 195, 30) 70%, rgb(52, 0, 0) 100%);
     --secondary-color-dark : white;
-    --color-text: white;
-    --title-text-color: black;
-    --title-bg-color: white;
-    --fotter-bg-color: #ffae00;
+    --color-text: black;
+    --title-text-color: white;
+    --title-bg-color: black;
+    --fotter-bg-color: #c7c7c6;
     --fotter-text-color: black;
     --card-background: #c5c5c5;
-    --tag-background: #ffffff50;
+    --tag-background: #0f2d9b50;
     --tag-text-color: black;
 }
 
@@ -19,4 +19,9 @@ html, body {
 
 body {
     background-color: var(--primary-color)!important;
+}
+
+@font-face {
+    font-family: app-font;
+    src: url(/pub/app-font.ttf);
 }

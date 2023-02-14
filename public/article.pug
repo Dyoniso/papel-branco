@@ -6,7 +6,7 @@ html(lang="en")
 
     body
         div.gr-top-bar
-            a.bar-title(href='/') Overnews
+            a.bar-title(href='/') Papel Branco
 
         if article
             div.container
@@ -27,24 +27,27 @@ html(lang="en")
 
                 div.row
                     div.col-8
-                        p.article-content= article.content
+                        pre.article-content= article.content
 
 
                     div.col-4
-                        div.mt-5.secondary-img-content
-                            if (article.files[1])
-                                - let file = article.files[1] 
+                        if (article.files[1])
+                            - let file = article.files[1] 
+                            div.mt-5.secondary-img-content(style=("background:#" + file.color))
                                 - let imgUrl = file.stored === 1 ? ("/assets/" + file.name) : file.url
-
                                 img(src=(imgUrl), alt=(article.title), srcset="")
-
-                        div.mt-4.tag-container
-                            div.d-flex.flex-wrap.w-100
-                                each tag in article.keywords
-                                    span.tag-content #{tag.content}
 
                         div.mt-2
                             p Postado em #{article.created}
+
+                        div.mt-4.tag-container
+                            - let bgTagColor = 'var(--tag-background)'
+                            if article.files[0]
+                                - bgTagColor = '#' + article.files[0].color + '50'
+
+                            div.d-flex.flex-wrap.w-100
+                                each tag in article.keywords
+                                    span.tag-content(style=("background:" + bgTagColor)) #{tag.content}
 
 
         include ./fotter
