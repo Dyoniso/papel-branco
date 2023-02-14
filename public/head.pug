@@ -1,11 +1,33 @@
+- let description = 'Leia artigos de qualidade sobre diversos assuntos em nosso site. Desde tecnologia, negócios, saúde e bem-estar, até viagens e lazer. Enriqueca seu conhecimento e mantenha-se atualizado com nossos conteúdos atualizados diariamente.'
 head
     meta(charset="UTF-8")
     meta(http-equiv="X-UA-Compatible", content="IE=edge")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
-    title #{title} - Papel Branco
+    title #{title} - Artigos de Papel Branco
+    meta(name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1")
+    meta(name="description" content=(description))
+    meta(property="og:locale" content="pt_br")
+    meta(property="og:type" content="article")
+    meta(property="og:title" content=(title))
+    meta(property="og:description" content=(description))
+    meta(property="og:site_name" content=(title))
     link(rel="shortcut icon" href="/pub/favicon.ico" type="image/x-icon")
     link(rel="stylesheet", href="/pub/theme.css")
     link(rel="stylesheet", href="/pub/fotter.css")
     link(rel="stylesheet", href="/pub/top-bar.css")
     link(rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous")
+    script(src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous")
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous")
+
+    //- Google Ads
+    script(async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9279022664968333"
+    crossorigin="anonymous")
+
+    //- Google tag (gtag.js)
+    script(async src="https://www.googletagmanager.com/gtag/js?id=G-SN588GPPFK")
+    script.
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-SN588GPPFK');
