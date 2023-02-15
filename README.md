@@ -18,7 +18,7 @@ Um site que usa o inteligência artificial para gerar artigos aleatórios
 
 # Todo List 14/02/2023
 
-1. Otimizar Layout da aplicação.
-2. Criar logo para a aplicação.
-3. Otimizar tema da aplicação.
-4. Desenvolver um layout único para celular.
+1. OK Otimizar Layout da aplicação.
+2. OK Criar logo para a aplicação.
+3. OK Otimizar tema da aplicação.
+4. OK Desenvolver um layout único para celular.
