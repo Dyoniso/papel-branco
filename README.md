@@ -5,14 +5,16 @@ Um protótipo de Blog simples onde os artigos são escritos por inteligência ar
 ![image](https://github.com/Dyoniso/GPT-Overnews/assets/57969605/0fa037ec-45b7-49f8-bfea-f44345322a41)
 
 ## Como isso é Possível?
+Com a ajuda da API do ChatGPT, temos a capacidade de criar prompts sobre praticamente qualquer tópico. Com isso em mente, podemos solicitar que ele crie diversos artigos abordando diferentes temas e palavras-chave.
+
 Uma vez que tenhamos esses artigos gerados, podemos armazená-los em um banco de dados, facilitando o planejamento de layouts e a renderização em todo o nosso site. É uma maneira eficaz de enriquecer o conteúdo e proporcionar uma experiência mais rica para nossos visitantes.
 
-## Qual as tecnologias e frameworks utilizados?
-1. Back-End - Node.js
-2. Front - Pug.js Como framework de Renderização.
-3. Banco de Dados - Postgres.
-4. Bing Image Api - Api de busca de imagem do Bing.
-5. GPT API - Api para geração dos artigos.
+## Qual as Tecnologias e Frameworks utilizados?
+1. Para o Back-End - Node.js.
+2. Para o Front-End - Pug.js/Jade Como Framework de Renderização.
+3. Para o Banco de Dados - Postgres.
+4. Para a busca de imagem - Bing Image Api.
+5. Para a geração de artigos - Open AI API.
 
 ## Como posso baixar e instalar?
 É bem simples, primeiro clone este repositório.
@@ -20,24 +22,24 @@ Uma vez que tenhamos esses artigos gerados, podemos armazená-los em um banco de
 git clone https://github.com/Dyoniso/papel-branco
 ```
 
-Após clonar, entre na pasta do repositório e instale os módulos do Node
+Após clonar, entre no diretório e instale todos os módulos contidos no ```package.json```.
 ```
 npm install .
 ```
 
-Crie um arquivo de configuração ```.env ``` com as seguintes variáveis:
+Crie um arquivo ```.env ``` para a configuração do projeto. Siga o Modelo:
 ```
 #HTTP_SERVER
-SERVER_PORT=4001 # Porta padrão do Servidor
-SERVER_HOST=127.0.0.1 # Host Padrão do Servidor
-SITE_URL=https://papelbranco.com.br # Dóminio ou Url do site
+SERVER_PORT=4001 # Porta padrão do Servidor.
+SERVER_HOST=127.0.0.1 # Host padrão do Servidor.
+SITE_URL=https://papelbranco.com.br # Domínio ou Url do Site.
 
 #IA CONFIG
-ENABLE_SYNC=true # Habilitar sicronização de artigos quando iniciar o servidor
-ENABLE_SAVE_FILES=false # Salvar arquivos obtidos pelo Bing no servidor. Caso negativo é utilizado a url de origem do arquivo
+ENABLE_SYNC=true # Habilitar sicronização de artigos quando iniciar o Servidor.
+ENABLE_SAVE_FILES=false # Salvar arquivos obtidos pelo Bing no servidor. Caso negativo é utilizado a url de origem do arquivo.
 
 #DATABASE
-# Credenciais de acesso ao banco Postgresql
+# Credenciais para a conexão do Postgres
 DB_USER=#DB_USER#
 DB_PASSWORD=#DB_PASS#
 DB_HOST=#DB_HOST#
@@ -46,8 +48,8 @@ DB_DATABASE=Overnews
 
 #API
 PRICIPAL_THEME='' # Tema principal que a IA usará como guia. Exemplo: Caso o tema seja Programação, a IA escreverá artigos relacionados ao mesmo.
-QTD_ARTICLES=10 # Quantidade de artigos por sicronização
-QTD_KEYWORDS=5 # Quantidade de palavras chaves por artigos
+QTD_ARTICLES=10 # Quantidade de artigos por sicronização.
+QTD_KEYWORDS=5 # Quantidade de palavras chaves por artigos.
 
 #OPENAPI
 OPENAI_API_KEY=#OPEN_API_KEY# # Chave API Open AI
@@ -56,20 +58,24 @@ OPENAI_API_KEY=#OPEN_API_KEY# # Chave API Open AI
 BING_SUBSCRIPTION_KEY=#BING_IMAGE_API_KEY# # Chave API Bing Search Image
 
 #CRON
-CRON_SYNC_AI = 0 # Cronometró de sicronização padrão. Default: Toda meia noite. Suportado 0 à 24 horas 
+CRON_SYNC_AI = 0 # Cronômetro de sicronização padrão. Default: Toda meia noite. Suportado 0 à 24 horas 
 ```
 
 ## Restaurar Banco de Dados Postgresql
 
-1. No Banco de Dados Crie um Banco com o Nome: ```Overnews```
-2. Neste repositório entre na pasta: ```/api/database/backup```
-3. Antes de restaurar o banco, instale a extensão: ```fuzzystrmatch```
-   No Banco de Dados. ```CREATE EXTENSION fuzzystrmatch```
-4. Restaure o arquivo de banco de daods ```11-02-2023.sql```
-   Utilize o comando. ```pg_restore -d Overnews 11-02-2023.sql```
+1. No Banco Crie um novo Database com o Nome: ```Overnews```
+2. No Banco instale a extensão: ```fuzzystrmatch```
+   ```CREATE EXTENSION fuzzystrmatch```
+3. Entre na pasta: ```/api/database/backup``` e restaure o Database utilizando o arquivo ```11-02-2023.sql```
+   Caso nessesário, utilize o comando. ```pg_restore -d Overnews 11-02-2023.sql```
+
 
 ## Finalização
-No Repositório, inicie o servidor Node: ```node app.js```, e aproveite o projeto!
+Quase, lá!
+Inicie o servidor Node com o comando ```node app.js```, e verifique nos logs se a conexão do banco, open-api, bing-image-api foi bem sucedida.
+
+![4f51f224-a1d1-4d7b-898d-9bc41dfaab8d](https://github.com/Dyoniso/GPT-Overnews/assets/57969605/90575cc7-ea56-40a9-af7d-f21361662c27)
+Sem mais, aproveite o projeto!
 
 # Lista de Atualização:
 
@@ -94,3 +100,5 @@ No Repositório, inicie o servidor Node: ```node app.js```, e aproveite o projet
 2. OK Criar logo para a aplicação.
 3. OK Otimizar tema da aplicação.
 4. OK Desenvolver um layout único para celular.
+
+<p align="center"> <img style="width:50px" src="https://github.com/Dyoniso/GPT-Overnews/assets/57969605/b17aa753-c1d9-4702-b17f-ddc5de1df708" /> </p>
