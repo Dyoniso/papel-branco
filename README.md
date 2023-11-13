@@ -1,8 +1,8 @@
 # Papel Branco
 Um protótipo de Blog simples onde os artigos são escritos por inteligência artificial.
 
-![image](https://github.com/Dyoniso/GPT-Overnews/assets/57969605/037d877a-c9f6-4d01-be0f-735f3b9ca750)
-![image](https://github.com/Dyoniso/GPT-Overnews/assets/57969605/0fa037ec-45b7-49f8-bfea-f44345322a41)
+![280048356-037d877a-c9f6-4d01-be0f-735f3b9ca750](https://github.com/Dyoniso/papel-branco/assets/57969605/3e609eed-db7a-43d5-bb98-f6d1ec7547c7)
+![280064331-0fa037ec-45b7-49f8-bfea-f44345322a41](https://github.com/Dyoniso/papel-branco/assets/57969605/67c6b884-ae63-4ba9-9123-70202358d29d)
 
 ## Como isso é Possível?
 Com a ajuda da API do ChatGPT, temos a capacidade de criar prompts sobre praticamente qualquer tópico. Com isso em mente, podemos solicitar que ele crie diversos artigos abordando diferentes temas e palavras-chave.
@@ -74,7 +74,7 @@ CRON_SYNC_AI = 0 # Cronômetro de sicronização padrão. Default: Toda meia noi
 Quase, lá!
 Inicie o servidor Node com o comando ```node app.js```, e verifique nos logs se a conexão do banco, open-api, bing-image-api foi bem sucedida.
 
-![4f51f224-a1d1-4d7b-898d-9bc41dfaab8d](https://github.com/Dyoniso/GPT-Overnews/assets/57969605/90575cc7-ea56-40a9-af7d-f21361662c27)
+![280071974-90575cc7-ea56-40a9-af7d-f21361662c27](https://github.com/Dyoniso/papel-branco/assets/57969605/59a7a165-4ecc-4a1e-9121-3bb2caa4152b)
 Sem mais, aproveite o projeto!
 
 # Lista de Atualização:
@@ -100,5 +100,5 @@ Sem mais, aproveite o projeto!
 2. OK Criar logo para a aplicação.
 3. OK Otimizar tema da aplicação.
 4. OK Desenvolver um layout único para celular.
-
-<p align="center"> <img style="width:50px" src="https://github.com/Dyoniso/GPT-Overnews/assets/57969605/b17aa753-c1d9-4702-b17f-ddc5de1df708" /> </p>
+   
+<p align="center"> <img style="width:50px" src="https://github.com/Dyoniso/papel-branco/assets/57969605/d457dd73-906c-4370-94e5-143225adafb9" /> </p>
